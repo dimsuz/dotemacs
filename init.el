@@ -56,12 +56,14 @@
   :after evil
   :config
   (general-create-definer dz/leader-keys
-    :keymaps '(normal insert visual emacs)
+    :keymaps '(normal emacs)
     :prefix "SPC"
     )
   (dz/leader-keys
     "t"  '(:ignore t :which-key "toggles")
     "tt" '(counsel-load-theme :which-key "choose theme")
+    "b"  '(:ignore t :which-key "buffers")
+    "bk" '(kill-current-buffer :which-key "kill buffer")
     ))
 
 (use-package evil
@@ -69,13 +71,14 @@
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
   (setq evil-want-C-u-scroll t)
+  (setq evil-want-C-d-scroll t)
   (setq evil-want-C-i-jump nil)
   :config
   (evil-mode 1)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
   (define-key evil-insert-state-map (kbd "C-j") 'evil-normal-state)
-  (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
-
+  (define-key evil-normal-state-map (kbd "C-e") 'evil-end-of-line)
+  (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
   ;; Use visual line motions even outside of visual-line-mode buffers
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
   (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
