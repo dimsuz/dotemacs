@@ -64,7 +64,14 @@
     "tt" '(counsel-load-theme :which-key "choose theme")
     "b"  '(:ignore t :which-key "buffers")
     "bk" '(kill-current-buffer :which-key "kill buffer")
-    ))
+    "bb" '(ivy-switch-buffer :which-key "switch buffer")
+    "," '(ivy-switch-buffer :which-key "switch buffer")
+    )
+  (general-define-key
+   :prefix "SPC"
+   :keymaps 'normal
+   "p" '(:keymap projectile-command-map :package projectile :which-key "projectile prefix")
+   ))
 
 (use-package evil
   :init
@@ -158,7 +165,7 @@
   (ivy-prescient-enable-filtering nil)
   :config
   ;; Uncomment the following line to have sorting remembered across sessions!
-  ;(prescient-persist-mode 1)
+					;(prescient-persist-mode 1)
   (ivy-prescient-mode 1))
 
 ;;
@@ -205,3 +212,31 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+;;
+;; Projectile
+;;
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :custom ((projectile-completion-system 'ivy))
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :bind (("S-<f10>" . projectile-repeat-last-command))
+  :init
+  (when (file-directory-p "~/projects")
+    (setq projectile-project-search-path '("~/projects")))
+  (setq projectile-switch-project-action #'projectile-dired))
+
+(use-package counsel-projectile
+  :after projectile
+  :config (counsel-projectile-mode))
+
+;;
+;; Haskell
+;;
+(use-package haskell-mode)
+
+(use-package format-all
+  :hook ((format-all-mode . format-all-ensure-formatter)
+	 (prog-mode . format-all-mode)))
