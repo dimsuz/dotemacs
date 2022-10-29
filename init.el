@@ -50,6 +50,14 @@
 (straight-use-package 'use-package)
 
 ;;
+;; Undo
+;;
+(use-package undo-tree
+  :config
+  (global-undo-tree-mode 1)
+  )
+
+;;
 ;; Keybindings
 ;;
 (use-package general
@@ -82,6 +90,7 @@
   (setq evil-want-C-i-jump nil)
   :config
   (evil-mode 1)
+  (evil-set-undo-system 'undo-tree)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
   (define-key evil-insert-state-map (kbd "C-j") 'evil-normal-state)
   (define-key evil-normal-state-map (kbd "C-e") 'evil-end-of-line)
