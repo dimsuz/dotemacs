@@ -77,7 +77,8 @@
     )
   (general-define-key
    :prefix "SPC"
-   :keymaps 'normal
+   :states 'normal
+   :keymaps 'override
    "p" '(:keymap projectile-command-map :package projectile :which-key "projectile prefix")
    ))
 
