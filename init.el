@@ -5,7 +5,7 @@
 (menu-bar-mode -1)
 (set-fringe-mode 10)
 
-(set-face-attribute 'default nil :font "Jetbrains Mono" :height 140)
+(set-face-attribute 'default nil :font "Jetbrains Mono" :height 130)
 
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -75,9 +75,7 @@
     "tt" '(counsel-load-theme :which-key "choose theme")
     "b"  '(:ignore t :which-key "buffers")
     "bk" '(kill-current-buffer :which-key "kill buffer")
-    "bb" '(ivy-switch-buffer :which-key "switch buffer")
-    "," '(ivy-switch-buffer :which-key "switch buffer")
-    "/" '(counsel-rg :which-key "search project")
+    "," '(switch-to-buffer :which-key "switch buffer")
     )
   (general-define-key
    :prefix "SPC"
@@ -97,7 +95,6 @@
   (evil-mode 1)
   (evil-set-undo-system 'undo-tree)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-  (define-key evil-insert-state-map (kbd "C-j") 'evil-normal-state)
   (define-key evil-normal-state-map (kbd "C-e") 'evil-end-of-line)
   (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
   ;; Use visual line motions even outside of visual-line-mode buffers
@@ -124,7 +121,7 @@
   (load-theme 'doom-solarized-light t)
 
   ;; Enable flashing mode-line on errors
-  (doom-themes-visual-bell-config)
+  ;;(doom-themes-visual-bell-config)
   ;; Enable custom neotree theme (all-the-icons must be installed!)
   (doom-themes-neotree-config)
   ;; or for treemacs users
@@ -138,62 +135,14 @@
   :hook (prog-mode . rainbow-delimiters-mode))
 
 ;;
-;; Completion framework
-;;
-;; TODO switch to vertico & stuff
-(use-package ivy
-  :diminish
-  :bind (("C-s" . swiper)
-         :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)
-         ("C-l" . ivy-alt-done)
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         :map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill)
-         :map ivy-reverse-i-search-map
-         ("C-k" . ivy-previous-line)
-         ("C-d" . ivy-reverse-i-search-kill))
-  :config
-  (ivy-mode 1))
-
-(use-package counsel
-  :bind (("C-M-j" . 'counsel-switch-buffer)
-         :map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history))
-  :custom
-  (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
-  :config
-  (counsel-mode 1))
-
-(use-package ivy-rich
-  :after ivy
-  :init
-  (ivy-rich-mode 1))
-
-(use-package ivy-prescient
-  :after counsel
-  :custom
-  (ivy-prescient-enable-filtering nil)
-  :config
-  ;; Uncomment the following line to have sorting remembered across sessions!
-					;(prescient-persist-mode 1)
-  (ivy-prescient-mode 1))
-
-;;
 ;; Helpful
 ;;
 (use-package helpful
   :commands (helpful-callable helpful-variable helpful-command helpful-key)
-  :custom
-  (counsel-describe-function-function #'helpful-callable)
-  (counsel-describe-variable-function #'helpful-variable)
   :bind
-  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-function] . helpful-callable)
   ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-variable] . helpful-variable)
   ([remap describe-key] . helpful-key))
 
 ;;
@@ -243,6 +192,7 @@
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
+  (setq org-return-follows-link t)
 
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
@@ -286,23 +236,25 @@
   (setq which-key-idle-delay 1))
 
 ;;
-;; Projectile
+;; Vertico
 ;;
-(use-package projectile
-  :diminish projectile-mode
-  :config (projectile-mode)
-  :custom ((projectile-completion-system 'ivy))
-  :bind-keymap
-  ("C-c p" . projectile-command-map)
-  :bind (("S-<f10>" . projectile-repeat-last-command))
+(use-package vertico
   :init
-  (when (file-directory-p "~/projects")
-    (setq projectile-project-search-path '("~/projects")))
-  (setq projectile-switch-project-action #'projectile-dired))
+  (vertico-mode))
 
-(use-package counsel-projectile
-  :after projectile
-  :config (counsel-projectile-mode))
+(use-package orderless
+  :ensure t
+  :custom
+  ;; Configure a custom style dispatcher (see the Consult wiki)
+  ;; (orderless-style-dispatchers '(+orderless-consult-dispatch orderless-affix-dispatch))
+  ;; (orderless-component-separator #'orderless-escapable-split-on-space)
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion)))))
+
+(use-package savehist
+  :init
+  (savehist-mode))
 
 (use-package magit
   :commands magit-status
