@@ -184,6 +184,10 @@
   (visual-line-mode 1))
 
 (use-package org
+  :straight (org :host github
+                 :repo "emacs-straight/org-mode"
+                 :local-repo "org"
+                 :depth 1)
   :commands (org-capture org-agenda)
   :hook (org-mode . dz/org-mode-setup)
   :config
