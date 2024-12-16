@@ -1,3 +1,8 @@
+(require 'package)
+(package-initialize)
+
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+
 (setq inhibit-startup-message t)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -5,10 +10,72 @@
 (menu-bar-mode -1)
 (set-fringe-mode 10)
 
-(set-face-attribute 'default nil :font "Jetbrains Mono" :height 130)
+(setq custom-file (locate-user-emacs-file "custom.el"))
+(load custom-file :no-error-if-file-is-missing)
+
+;; Do not show native compilation warnings
+(add-to-list 'display-buffer-alist
+             '("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
+               (display-buffer-no-window)
+               (allow-no-window . t)))
+
+;; Delete the selected text upon text insertion
+(use-package delsel
+  :ensure nil ; no need to install it as it is built-in
+  :straight (:type built-in)
+  :hook (after-init . delete-selection-mode))
+
+(defun prot/keyboard-quit-dwim ()
+  "Do-What-I-Mean behaviour for a general `keyboard-quit'.
+
+The generic `keyboard-quit' does not do the expected thing when
+the minibuffer is open.  Whereas we want it to close the
+minibuffer, even without explicitly focusing it.
+
+The DWIM behaviour of this command is as follows:
+
+- When the region is active, disable it.
+- When a minibuffer is open, but not focused, close the minibuffer.
+- When the Completions buffer is selected, close it.
+- In every other case use the regular `keyboard-quit'."
+  (interactive)
+  (cond
+   ((region-active-p)
+    (keyboard-quit))
+   ((derived-mode-p 'completion-list-mode)
+    (delete-completion-window))
+   ((> (minibuffer-depth) 0)
+    (abort-recursive-edit))
+   (t
+    (keyboard-quit))))
+
+(define-key global-map (kbd "C-g") #'prot/keyboard-quit-dwim)
+
+;; Fonts
+(set-face-attribute 'default nil :font "Iosevka" :height 125)
 
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
+(use-package nerd-icons
+  :ensure t)
+
+(use-package nerd-icons-completion
+  :ensure t
+  :after marginalia
+  :config
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+
+(use-package nerd-icons-corfu
+  :ensure t
+  :after corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+
+(use-package nerd-icons-dired
+  :ensure t
+  :hook
+  (dired-mode . nerd-icons-dired-mode))
 
 ;; Line numbers
 (column-number-mode)
@@ -60,54 +127,57 @@
   (global-undo-tree-mode 1)
   )
 
+(defvar use-evil 't)
+
 ;;
 ;; Keybindings
 ;;
-(use-package general
-  :after evil
-  :config
-  (general-create-definer dz/leader-keys
-    :keymaps '(normal emacs)
-    :prefix "SPC"
-    )
-  (dz/leader-keys
-    "t"  '(:ignore t :which-key "toggles")
-    "tt" '(counsel-load-theme :which-key "choose theme")
-    "b"  '(:ignore t :which-key "buffers")
-    "bk" '(kill-current-buffer :which-key "kill buffer")
-    "," '(switch-to-buffer :which-key "switch buffer")
-    )
-  (general-define-key
-   :prefix "SPC"
-   :states 'normal
-   :keymaps 'override
-   "p" '(:keymap projectile-command-map :package projectile :which-key "projectile prefix")
-   ))
+(if use-evil
+    (progn (use-package general
+	     :after evil
+	     :config
+	     (general-create-definer dz/leader-keys
+	       :keymaps '(normal emacs)
+	       :prefix "SPC"
+	       )
+	     (dz/leader-keys
+	       "t"  '(:ignore t :which-key "toggles")
+	       "tt" '(counsel-load-theme :which-key "choose theme")
+	       "b"  '(:ignore t :which-key "buffers")
+	       "bk" '(kill-current-buffer :which-key "kill buffer")
+	       "," '(switch-to-buffer :which-key "switch buffer")
+	       )
+	     (general-define-key
+	      :prefix "SPC"
+	      :states 'normal
+	      :keymaps 'override
+	      "p" '(:keymap projectile-command-map :package projectile :which-key "projectile prefix")
+	      ))
+	   (use-package evil
+	     :init
+	     (setq evil-want-integration t)
+	     (setq evil-want-keybinding nil)
+	     (setq evil-want-C-u-scroll t)
+	     (setq evil-want-C-d-scroll t)
+	     (setq evil-want-C-i-jump nil)
+	     :config
+	     (evil-mode 1)
+	     (evil-set-undo-system 'undo-tree)
+	     (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+	     (define-key evil-normal-state-map (kbd "C-e") 'evil-end-of-line)
+	     (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
+	     ;; Use visual line motions even outside of visual-line-mode buffers
+	     (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+	     (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 
-(use-package evil
-  :init
-  (setq evil-want-integration t)
-  (setq evil-want-keybinding nil)
-  (setq evil-want-C-u-scroll t)
-  (setq evil-want-C-d-scroll t)
-  (setq evil-want-C-i-jump nil)
-  :config
-  (evil-mode 1)
-  (evil-set-undo-system 'undo-tree)
-  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-  (define-key evil-normal-state-map (kbd "C-e") 'evil-end-of-line)
-  (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
-  ;; Use visual line motions even outside of visual-line-mode buffers
-  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+	     (evil-set-initial-state 'messages-buffer-mode 'normal)
+	     (evil-set-initial-state 'dashboard-mode 'normal))
 
-  (evil-set-initial-state 'messages-buffer-mode 'normal)
-  (evil-set-initial-state 'dashboard-mode 'normal))
-
-(use-package evil-collection
-  :after evil
-  :config
-  (evil-collection-init))
+	   (use-package evil-collection
+	     :after evil
+	     :config
+	     (evil-collection-init))
+	   ))
 
 ;;
 ;; Themes
@@ -118,7 +188,8 @@
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-solarized-light t)
+  ;; commented: using another one
+  ;; (load-theme 'doom-solarized-light t)
 
   ;; Enable flashing mode-line on errors
   ;;(doom-themes-visual-bell-config)
@@ -129,6 +200,11 @@
   (doom-themes-treemacs-config)
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
+
+(use-package modus-themes
+  :ensure t
+  :config
+  (load-theme 'modus-operandi :no-confirm-loading))
 
 ;; Delimeters
 (use-package rainbow-delimiters
@@ -224,11 +300,12 @@
 ;;
 ;; Modeline
 ;;
-(use-package all-the-icons
-  :if (display-graphic-p))
-(use-package doom-modeline
-  :ensure t
-  :init (doom-modeline-mode 1))
+;; TODO customize modeline
+;; (use-package all-the-icons
+;;   :if (display-graphic-p))
+;; (use-package doom-modeline
+;;   :ensure t
+;;   :init (doom-modeline-mode 1))
 
 ;; Which key
 
@@ -244,7 +321,11 @@
 ;;
 (use-package vertico
   :init
-  (vertico-mode))
+  :hook (after-init . vertico-mode))
+
+(use-package marginalia
+  :ensure t
+  :hook (after-init . marginalia-mode))
 
 (use-package orderless
   :ensure t
@@ -257,8 +338,60 @@
   (completion-category-overrides '((file (styles partial-completion)))))
 
 (use-package savehist
-  :init
-  (savehist-mode))
+  :ensure nil ; it is built-in
+  :straight (:type built-in)
+  :hook (after-init . savehist-mode))
+
+(use-package corfu
+  :ensure t
+  :hook (after-init . global-corfu-mode)
+  :bind (:map corfu-map ("<tab>" . corfu-complete))
+  :config
+  (setq tab-always-indent 'complete)
+  (setq corfu-preview-current nil)
+  (setq corfu-min-width 20)
+
+  (setq corfu-popupinfo-delay '(1.25 . 0.5))
+  (corfu-popupinfo-mode 1) ; shows documentation after `corfu-popupinfo-delay'
+
+  ;; Sort by input history (no need to modify `corfu-sort-function').
+  (with-eval-after-load 'savehist
+    (corfu-history-mode 1)
+    (add-to-list 'savehist-additional-variables 'corfu-history)))
+
+(use-package dired
+  :ensure nil
+  :straight (:type built-in)
+  :commands (dired)
+  :hook
+  ((dired-mode . dired-hide-details-mode)
+   (dired-mode . hl-line-mode))
+  :config
+  (setq dired-recursive-copies 'always)
+  (setq dired-recursive-deletes 'always)
+  (setq delete-by-moving-to-trash t)
+  (setq dired-dwim-target t))
+
+(use-package dired-subtree
+  :ensure t
+  :after dired
+  :bind
+  (:map dired-mode-map
+    ("<tab>" . dired-subtree-toggle)
+    ("TAB" . dired-subtree-toggle)
+    ("<backtab>" . dired-subtree-remove)
+    ("S-TAB" . dired-subtree-remove))
+  :config
+  (setq dired-subtree-use-backgrounds nil))
+
+(use-package trashed
+  :ensure t
+  :commands (trashed)
+  :config
+  (setq trashed-action-confirmer 'y-or-n-p)
+  (setq trashed-use-header-line t)
+  (setq trashed-sort-key '("Date deleted" . t))
+  (setq trashed-date-format "%Y-%m-%d %H:%M:%S"))
 
 (use-package magit
   :commands magit-status
@@ -268,3 +401,14 @@
 (use-package format-all
   :hook ((format-all-mode . format-all-ensure-formatter)
 	 (prog-mode . format-all-mode)))
+
+(use-package odin-mode
+  :ensure t
+  :straight (:host github :repo "mattt-b/odin-mode")
+  :config
+  (setq indent-tabs-mode nil)
+  (setq js-indent-level 2)
+  ;; this enables 'gc' to use the correct comment style
+  (setq comment-start "// "
+        comment-end "")
+  (modify-syntax-entry ?_ "w"))
