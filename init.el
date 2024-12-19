@@ -52,10 +52,17 @@ The DWIM behaviour of this command is as follows:
 (define-key global-map (kbd "C-g") #'prot/keyboard-quit-dwim)
 
 ;; Fonts
-(set-face-attribute 'default nil :font "Iosevka" :height 125)
+(if (string-equal (system-name) "dimsuzkode")
+    (set-face-attribute 'default nil :font "Iosevka" :height 120)
+  (set-face-attribute 'default nil :font "Iosevka" :height 125))
 
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
+;; Global key bindings
+(global-set-key (kbd "C-x C-b") 'switch-to-buffer)
+(global-set-key (kbd "C-c f i") (lambda () (interactive) (find-file user-init-file)))
+(global-set-key (kbd "C-c C-f i") (lambda () (interactive) (find-file user-init-file)))
 
 (use-package nerd-icons
   :ensure t)
@@ -125,28 +132,29 @@ The DWIM behaviour of this command is as follows:
 (use-package undo-tree
   :config
   (global-undo-tree-mode 1)
-  )
+  ;; Prevent undo tree files from polluting your git repo
+  (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))))
 
-(defvar use-evil 't)
+(defvar use-evil-or-meow "meow")
 
 ;;
 ;; Keybindings
 ;;
-(if use-evil
+(if (string-equal use-evil-or-meow "evil")
     (progn (use-package general
 	     :after evil
 	     :config
 	     (general-create-definer dz/leader-keys
-	       :keymaps '(normal emacs)
-	       :prefix "SPC"
-	       )
+				     :keymaps '(normal emacs)
+				     :prefix "SPC"
+				     )
 	     (dz/leader-keys
-	       "t"  '(:ignore t :which-key "toggles")
-	       "tt" '(counsel-load-theme :which-key "choose theme")
-	       "b"  '(:ignore t :which-key "buffers")
-	       "bk" '(kill-current-buffer :which-key "kill buffer")
-	       "," '(switch-to-buffer :which-key "switch buffer")
-	       )
+	      "t"  '(:ignore t :which-key "toggles")
+	      "tt" '(counsel-load-theme :which-key "choose theme")
+	      "b"  '(:ignore t :which-key "buffers")
+	      "bk" '(kill-current-buffer :which-key "kill buffer")
+	      "," '(switch-to-buffer :which-key "switch buffer")
+	      )
 	     (general-define-key
 	      :prefix "SPC"
 	      :states 'normal
@@ -178,6 +186,101 @@ The DWIM behaviour of this command is as follows:
 	     :config
 	     (evil-collection-init))
 	   ))
+;;
+;; Meow mode
+;;
+(defun meow-setup ()
+  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+  (meow-motion-overwrite-define-key
+   '("j" . meow-next)
+   '("k" . meow-prev)
+   '("<escape>" . ignore))
+  (meow-leader-define-key
+   ;; SPC j/k will run the original command in MOTION state.
+   '("j" . "H-j")
+   '("k" . "H-k")
+   ;; Use SPC (0-9) for digit arguments.
+   '("1" . meow-digit-argument)
+   '("2" . meow-digit-argument)
+   '("3" . meow-digit-argument)
+   '("4" . meow-digit-argument)
+   '("5" . meow-digit-argument)
+   '("6" . meow-digit-argument)
+   '("7" . meow-digit-argument)
+   '("8" . meow-digit-argument)
+   '("9" . meow-digit-argument)
+   '("0" . meow-digit-argument)
+   '("/" . meow-keypad-describe-key)
+   '("?" . meow-cheatsheet))
+  (meow-normal-define-key
+   '("0" . meow-expand-0)
+   '("9" . meow-expand-9)
+   '("8" . meow-expand-8)
+   '("7" . meow-expand-7)
+   '("6" . meow-expand-6)
+   '("5" . meow-expand-5)
+   '("4" . meow-expand-4)
+   '("3" . meow-expand-3)
+   '("2" . meow-expand-2)
+   '("1" . meow-expand-1)
+   '("-" . negative-argument)
+   '(";" . meow-reverse)
+   '("," . meow-inner-of-thing)
+   '("." . meow-bounds-of-thing)
+   '("[" . meow-beginning-of-thing)
+   '("]" . meow-end-of-thing)
+   '("a" . meow-append)
+   '("A" . meow-open-below)
+   '("b" . meow-back-word)
+   '("B" . meow-back-symbol)
+   '("c" . meow-change)
+   '("d" . meow-delete)
+   '("D" . meow-backward-delete)
+   '("e" . meow-next-word)
+   '("E" . meow-next-symbol)
+   '("f" . meow-find)
+   '("g" . meow-cancel-selection)
+   '("G" . meow-grab)
+   '("h" . meow-left)
+   '("H" . meow-left-expand)
+   '("i" . meow-insert)
+   '("I" . meow-open-above)
+   '("j" . meow-next)
+   '("J" . meow-next-expand)
+   '("k" . meow-prev)
+   '("K" . meow-prev-expand)
+   '("l" . meow-right)
+   '("L" . meow-right-expand)
+   '("m" . meow-join)
+   '("n" . meow-search)
+   '("o" . meow-block)
+   '("O" . meow-to-block)
+   '("p" . meow-yank)
+   '("q" . meow-quit)
+   '("Q" . meow-goto-line)
+   '("r" . meow-replace)
+   '("R" . meow-swap-grab)
+   '("s" . meow-kill)
+   '("t" . meow-till)
+   '("u" . meow-undo)
+   '("U" . meow-undo-in-selection)
+   '("v" . meow-visit)
+   '("w" . meow-mark-word)
+   '("W" . meow-mark-symbol)
+   '("x" . meow-line)
+   '("X" . meow-goto-line)
+   '("y" . meow-save)
+   '("Y" . meow-sync-grab)
+   '("z" . meow-pop-selection)
+   '("'" . repeat)
+   '("<escape>" . ignore)))
+
+(use-package meow
+  :ensure t
+  :if (string-equal use-evil-or-meow "meow")
+  :config
+  (meow-setup)
+  (meow-global-mode 1))
 
 ;;
 ;; Themes
@@ -202,9 +305,12 @@ The DWIM behaviour of this command is as follows:
   (doom-themes-org-config))
 
 (use-package modus-themes
+  :ensure t)
+
+(use-package ef-themes
   :ensure t
   :config
-  (load-theme 'modus-operandi :no-confirm-loading))
+  (load-theme 'ef-spring :no-confirm))
 
 ;; Delimeters
 (use-package rainbow-delimiters
@@ -377,10 +483,10 @@ The DWIM behaviour of this command is as follows:
   :after dired
   :bind
   (:map dired-mode-map
-    ("<tab>" . dired-subtree-toggle)
-    ("TAB" . dired-subtree-toggle)
-    ("<backtab>" . dired-subtree-remove)
-    ("S-TAB" . dired-subtree-remove))
+	("<tab>" . dired-subtree-toggle)
+	("TAB" . dired-subtree-toggle)
+	("<backtab>" . dired-subtree-remove)
+	("S-TAB" . dired-subtree-remove))
   :config
   (setq dired-subtree-use-backgrounds nil))
 
@@ -412,3 +518,6 @@ The DWIM behaviour of this command is as follows:
   (setq comment-start "// "
         comment-end "")
   (modify-syntax-entry ?_ "w"))
+
+(use-package kotlin-mode
+  :ensure t)
