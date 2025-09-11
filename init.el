@@ -56,7 +56,7 @@ The DWIM behaviour of this command is as follows:
 
 ;; Fonts
 (if (string-equal (system-name) "dimsuzkode")
-    (set-face-attribute 'default nil :font "Iosevka" :height 120)
+    (set-face-attribute 'default nil :font "Iosevka" :height 110)
   (set-face-attribute 'default nil :font "Iosevka" :height 125))
 
 ;; Make ESC quit prompts
@@ -141,7 +141,7 @@ The DWIM behaviour of this command is as follows:
   ;; Prevent undo tree files from polluting your git repo
   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))))
 
-(defvar use-evil-or-meow "meow")
+(defvar use-evil-or-meow "god-mode")
 
 ;;
 ;; Keybindings
@@ -151,9 +151,9 @@ The DWIM behaviour of this command is as follows:
 	     :after evil
 	     :config
 	     (general-create-definer dz/leader-keys
-				     :keymaps '(normal emacs)
-				     :prefix "SPC"
-				     )
+	                             :keymaps '(normal emacs)
+	                             :prefix "SPC"
+	                             )
 	     (dz/leader-keys
 	      "t"  '(:ignore t :which-key "toggles")
 	      "tt" '(counsel-load-theme :which-key "choose theme")
@@ -287,6 +287,25 @@ The DWIM behaviour of this command is as follows:
   :config
   (meow-setup)
   (meow-global-mode 1))
+
+(use-package god-mode
+  :ensure t
+  :if (string-equal use-evil-or-meow "god-mode")
+  :config
+  (global-set-key (kbd "<escape>") #'god-mode-all)
+  ;; (define-key god-local-mode-map (kbd "i") #'god-local-mode)
+  ;; (global-set-key (kbd "<escape>") #'(lambda () (interactive) (god-local-mode 1)))
+  (setq god-exempt-major-modes nil)
+  (setq god-exempt-predicates nil)
+  (define-key god-local-mode-map (kbd ".") #'repeat)
+  (global-set-key (kbd "C-x C-1") #'delete-other-windows)
+  (global-set-key (kbd "C-x C-2") #'split-window-below)
+  (global-set-key (kbd "C-x C-3") #'split-window-right)
+  (global-set-key (kbd "C-x C-0") #'delete-window)
+  (global-set-key (kbd "C-x C-o") #'other-window)
+  (define-key god-local-mode-map (kbd "[") #'backward-paragraph)
+  (define-key god-local-mode-map (kbd "]") #'forward-paragraph)
+  )
 
 ;;
 ;; Themes
@@ -453,55 +472,55 @@ The DWIM behaviour of this command is as follows:
   :ensure t
   ;; Replace bindings. Lazily loaded by `use-package'.
   :bind (;; C-c bindings in `mode-specific-map'
-          ("C-c M-x" . consult-mode-command)
-          ("C-c h" . consult-history)
-          ("C-c k" . consult-kmacro)
-          ("C-c m" . consult-man)
-          ("C-c i" . consult-info)
-          ([remap Info-search] . consult-info)
-          ;; C-x bindings in `ctl-x-map'
-          ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-          ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-          ("C-x C-b" . consult-buffer)                ;; orig. switch-to-buffer
-          ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-          ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-          ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
-          ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
-          ;; ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-          ;; Custom M-# bindings for fast register access
-          ("M-#" . consult-register-load)
-          ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
-          ("C-M-#" . consult-register)
-          ;; Other custom bindings
-          ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ("C-c M-x" . consult-mode-command)
+         ("C-c h" . consult-history)
+         ("C-c k" . consult-kmacro)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
+         ;; C-x bindings in `ctl-x-map'
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x C-b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ;; ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
           ;;; M-g bindings in `goto-map'
-          ("M-g e" . consult-compile-error)
-          ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
-          ("M-g g" . consult-goto-line)             ;; orig. goto-line
-          ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-          ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-          ("M-g m" . consult-mark)
-          ("M-g k" . consult-global-mark)
-          ("M-g i" . consult-imenu)
-          ("M-g I" . consult-imenu-multi)
-          ;; M-s bindings in `search-map'
-          ("M-s d" . consult-find)                  ;; Alternative: consult-fd
-          ("M-s c" . consult-locate)
-          ("M-s g" . consult-grep)
-          ("M-s G" . consult-git-grep)
-          ("M-s r" . consult-ripgrep)
-          ("M-s l" . consult-line)
-          ;; search integration
-          ("M-s e" . consult-isearch-history)
-          :map isearch-mode-map
-          ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-          ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-          ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-          ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
-          ;; Minibuffer history
-          :map minibuffer-local-map
-          ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-          ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings in `search-map'
+         ("M-s d" . consult-find)                  ;; Alternative: consult-fd
+         ("M-s c" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ;; search integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
 
   ;; Enable automatic preview at point in the *Completions* buffer. This is
   ;; relevant when you use the default completion UI.
@@ -620,9 +639,9 @@ The DWIM behaviour of this command is as follows:
   :config
   (add-to-list 'project-switch-commands '(magit-project-status "Magit" ?m)))
 
-(use-package format-all
-  :hook ((format-all-mode . format-all-ensure-formatter)
-	 (prog-mode . format-all-mode)))
+;; (use-package format-all
+;;   :hook ((format-all-mode . format-all-ensure-formatter)
+;; 	 (prog-mode . format-all-mode)))
 
 (use-package odin-mode
   :ensure t
