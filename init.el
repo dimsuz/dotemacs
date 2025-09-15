@@ -62,13 +62,19 @@ The DWIM behaviour of this command is as follows:
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
+(defun dz/switch-other-buffer ()
+  (interactive)
+  (switch-to-buffer (other-buffer)))
+
 ;; Global key bindings
 (global-set-key (kbd "C-c f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c C-f i") (lambda () (interactive) (find-file user-init-file)))
-;; free this key (opens FAQ by default) to be easier to run C-h f from meow-keypad
-(global-unset-key (kbd "C-h C-f"))
-;; free this key (opens FAQ by default) to be easier to run C-h f from meow-keypad
-(global-unset-key (kbd "C-x C-p"))
+(global-set-key (kbd "C-`") #'dz/switch-other-buffer)
+(global-unset-key (kbd "C-z"))
+(global-unset-key (kbd "C-x C-z"))
+
+(define-key c-mode-map (kbd "C-c C-c") #'recompile)
+(define-key c-mode-map (kbd "C-c C-S-c") #'compile)
 
 (use-package nerd-icons
   :ensure t)
@@ -196,6 +202,11 @@ The DWIM behaviour of this command is as follows:
 ;; Meow mode
 ;;
 (defun meow-setup ()
+  ;; free this key (opens FAQ by default) to be easier to run C-h f from meow-keypad
+  (global-unset-key (kbd "C-h C-f"))
+  ;; free this key (opens FAQ by default) to be easier to run C-h f from meow-keypad
+  (global-unset-key (kbd "C-x C-p"))
+
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
   (meow-motion-overwrite-define-key
    '("j" . meow-next)
@@ -293,7 +304,7 @@ The DWIM behaviour of this command is as follows:
   :if (string-equal use-evil-or-meow "god-mode")
   :config
   (global-set-key (kbd "<escape>") #'god-mode-all)
-  ;; (define-key god-local-mode-map (kbd "i") #'god-local-mode)
+  (define-key god-local-mode-map (kbd "i") #'god-local-mode)
   ;; (global-set-key (kbd "<escape>") #'(lambda () (interactive) (god-local-mode 1)))
   (setq god-exempt-major-modes nil)
   (setq god-exempt-predicates nil)
@@ -432,14 +443,14 @@ The DWIM behaviour of this command is as follows:
 ;; Modeline
 ;;
 ;; TODO customize modeline
-;; (use-package all-the-icons
-;;   :if (display-graphic-p))
-;; (use-package doom-modeline
-;;   :ensure t
-;;   :init (doom-modeline-mode 1))
+(use-package all-the-icons
+  :if (display-graphic-p))
+
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
 
 ;; Which key
-
 (use-package which-key
   :diminish which-key-mode
   :ensure t
@@ -661,3 +672,9 @@ The DWIM behaviour of this command is as follows:
   (setq kotlin-mode-parenthesized-expression-offset 2)
   (setq kotlin-mode-multiline-statement-offset 2)
   )
+
+(setq display-buffer-alist
+      '(("\\*compilation\\*"
+         (display-buffer-reuse-window display-buffer-use-some-window display-buffer-in-direction)
+         (direction . right)
+         (inhibit-same-window . t))))
