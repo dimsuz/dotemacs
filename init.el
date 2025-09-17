@@ -2,7 +2,37 @@
 (require 'package)
 (package-initialize)
 
+;;
+;; Package management
+;;
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+(setq straight-use-package-by-default t
+      straight-repository-branch "master"
+      ;; single file for caching autoloads
+      straight-cache-autoloads t
+      ;; NOTE: requires python3 and watchexec
+      ;; straight-check-for-modifications '(watch-files find-when-checking)
+      ;; NOTE: requires no watchexec
+      straight-find-executable "fd"
+      straight-check-for-modifications '(check-on-save find-when-checking)
+      )
+
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+(straight-use-package 'use-package)
 
 (setq inhibit-startup-message t)
 (scroll-bar-mode -1)
@@ -10,6 +40,7 @@
 (tooltip-mode -1)
 (menu-bar-mode -1)
 (set-fringe-mode 10)
+(save-place-mode 1)
 
 (setq custom-file (locate-user-emacs-file "custom.el"))
 (load custom-file :no-error-if-file-is-missing)
@@ -70,11 +101,14 @@ The DWIM behaviour of this command is as follows:
 (global-set-key (kbd "C-c f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c C-f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-`") #'dz/switch-other-buffer)
+(global-set-key (kbd "C-c C-i") #'imenu)
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-x C-z"))
 
-(define-key c-mode-map (kbd "C-c C-c") #'recompile)
-(define-key c-mode-map (kbd "C-c C-S-c") #'compile)
+(use-package cc-mode
+  :config
+  (define-key c-mode-map (kbd "C-c C-c") #'recompile)
+  (define-key c-mode-map (kbd "C-c C-S-c") #'compile))
 
 (use-package nerd-icons
   :ensure t)
@@ -108,37 +142,6 @@ The DWIM behaviour of this command is as follows:
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 ;;
-;; Package management
-;;
-(setq straight-use-package-by-default t
-      straight-repository-branch "master"
-      ;; single file for caching autoloads
-      straight-cache-autoloads t
-      ;; NOTE: requires python3 and watchexec
-      ;; straight-check-for-modifications '(watch-files find-when-checking)
-      ;; NOTE: requires no watchexec
-      straight-find-executable "fd"
-      straight-check-for-modifications '(check-on-save find-when-checking)
-      )
-
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name
-        "straight/repos/straight.el/bootstrap.el"
-        (or (bound-and-true-p straight-base-dir)
-            user-emacs-directory)))
-      (bootstrap-version 7))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-(straight-use-package 'use-package)
-
-;;
 ;; Undo
 ;;
 (use-package undo-tree
@@ -147,7 +150,7 @@ The DWIM behaviour of this command is as follows:
   ;; Prevent undo tree files from polluting your git repo
   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))))
 
-(defvar use-evil-or-meow "god-mode")
+(defvar use-evil-or-meow "meow")
 
 ;;
 ;; Keybindings
@@ -299,6 +302,9 @@ The DWIM behaviour of this command is as follows:
   (meow-setup)
   (meow-global-mode 1))
 
+(defun dz/god-mode-update-cursor-type ()
+  (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
+
 (use-package god-mode
   :ensure t
   :if (string-equal use-evil-or-meow "god-mode")
@@ -310,13 +316,20 @@ The DWIM behaviour of this command is as follows:
   (setq god-exempt-predicates nil)
   (define-key god-local-mode-map (kbd ".") #'repeat)
   (global-set-key (kbd "C-x C-1") #'delete-other-windows)
-  (global-set-key (kbd "C-x C-2") #'split-window-below)
-  (global-set-key (kbd "C-x C-3") #'split-window-right)
+  (global-set-key (kbd "C-x C-2") #'split-window-right)
+  (global-set-key (kbd "C-x C-3") #'split-window-below)
   (global-set-key (kbd "C-x C-0") #'delete-window)
-  (global-set-key (kbd "C-x C-o") #'other-window)
+  ;; using ace-window instead
+  ;; (global-set-key (kbd "C-x C-o") #'other-window)
   (define-key god-local-mode-map (kbd "[") #'backward-paragraph)
   (define-key god-local-mode-map (kbd "]") #'forward-paragraph)
-  )
+  (add-hook 'god-mode-enabled-hook #'dz/god-mode-update-cursor-type)
+  (add-hook 'god-mode-disabled-hook #'dz/god-mode-update-cursor-type))
+
+(use-package ace-window
+  :ensure t
+  :config
+  (global-set-key (kbd "C-x C-o") #'ace-window))
 
 ;;
 ;; Themes
@@ -640,7 +653,9 @@ The DWIM behaviour of this command is as follows:
   :commands magit-status
   :bind
   (:map global-map
-	("C-c p g" . magit-status))
+	("C-c g g" . magit-status))
+  :config
+  (add-hook 'magit-status-mode-hook (lambda () (god-local-mode -1)))
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
