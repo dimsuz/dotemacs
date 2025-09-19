@@ -216,9 +216,6 @@ The DWIM behaviour of this command is as follows:
    '("k" . meow-prev)
    '("<escape>" . ignore))
   (meow-leader-define-key
-   ;; SPC j/k will run the original command in MOTION state.
-   '("j" . "H-j")
-   '("k" . "H-k")
    ;; Use SPC (0-9) for digit arguments.
    '("1" . meow-digit-argument)
    '("2" . meow-digit-argument)
@@ -293,7 +290,8 @@ The DWIM behaviour of this command is as follows:
    '("Y" . meow-sync-grab)
    '("z" . meow-pop-selection)
    '("'" . repeat)
-   '("<escape>" . ignore)))
+   '("<escape>" . ignore)
+   '("`" . ace-window))
 
 (use-package meow
   :ensure t
