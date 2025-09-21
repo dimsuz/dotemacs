@@ -88,7 +88,7 @@ The DWIM behaviour of this command is as follows:
 ;; Fonts
 (if (string-equal (system-name) "dimsuzkode")
     (set-face-attribute 'default nil :font "Iosevka" :height 110)
-  (set-face-attribute 'default nil :font "Iosevka" :height 125))
+  (set-face-attribute 'default nil :font "Jetbrains Mono" :height 130))
 
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -144,6 +144,7 @@ The DWIM behaviour of this command is as follows:
 ;;
 ;; Undo
 ;;
+;; TODO switch to vundo
 (use-package undo-tree
   :config
   (global-undo-tree-mode 1)
@@ -160,9 +161,9 @@ The DWIM behaviour of this command is as follows:
 	     :after evil
 	     :config
 	     (general-create-definer dz/leader-keys
-	                             :keymaps '(normal emacs)
-	                             :prefix "SPC"
-	                             )
+	       :keymaps '(normal emacs)
+	       :prefix "SPC"
+	       )
 	     (dz/leader-keys
 	      "t"  '(:ignore t :which-key "toggles")
 	      "tt" '(counsel-load-theme :which-key "choose theme")
@@ -291,7 +292,7 @@ The DWIM behaviour of this command is as follows:
    '("z" . meow-pop-selection)
    '("'" . repeat)
    '("<escape>" . ignore)
-   '("`" . ace-window))
+   '("`" . ace-window)))
 
 (use-package meow
   :ensure t
@@ -344,10 +345,10 @@ The DWIM behaviour of this command is as follows:
   ;; Enable flashing mode-line on errors
   ;;(doom-themes-visual-bell-config)
   ;; Enable custom neotree theme (all-the-icons must be installed!)
-  (doom-themes-neotree-config)
+  ;; (doom-themes-neotree-config)
   ;; or for treemacs users
-  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
-  (doom-themes-treemacs-config)
+  ;; (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  ;; (doom-themes-treemacs-config)
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
