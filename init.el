@@ -45,7 +45,8 @@
 (setq custom-file (locate-user-emacs-file "custom.el"))
 (load custom-file :no-error-if-file-is-missing)
 
-(setq-default indent-tabs-mode nil)
+(setq-default indent-tabs-mode nil)   
+(setq-default dabbrev-case-fold-search nil)
 
 ;; Do not show native compilation warnings
 (add-to-list 'display-buffer-alist
@@ -104,6 +105,12 @@ The DWIM behaviour of this command is as follows:
 (global-set-key (kbd "C-c C-i") #'imenu)
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-x C-z"))
+
+(setq display-buffer-alist
+      '(("\\*compilation\\*"
+         (display-buffer-reuse-window display-buffer-use-some-window display-buffer-in-direction)
+         (direction . right)
+         (inhibit-same-window . t))))
 
 (use-package cc-mode
   :config
@@ -229,7 +236,8 @@ The DWIM behaviour of this command is as follows:
    '("9" . meow-digit-argument)
    '("0" . meow-digit-argument)
    '("/" . meow-keypad-describe-key)
-   '("?" . meow-cheatsheet))
+   '("?" . meow-cheatsheet)
+   '("o" . ace-window))
   (meow-normal-define-key
    '("0" . meow-expand-0)
    '("9" . meow-expand-9)
@@ -291,8 +299,9 @@ The DWIM behaviour of this command is as follows:
    '("Y" . meow-sync-grab)
    '("z" . meow-pop-selection)
    '("'" . repeat)
+   '("=" . meow-indent)
    '("<escape>" . ignore)
-   '("`" . ace-window)))
+   '("`" . dz/switch-other-buffer)))
 
 (use-package meow
   :ensure t
@@ -328,7 +337,8 @@ The DWIM behaviour of this command is as follows:
 (use-package ace-window
   :ensure t
   :config
-  (global-set-key (kbd "C-x C-o") #'ace-window))
+  (global-set-key (kbd "C-x C-o") #'ace-window)
+  (setq aw-scope 'frame))
 
 ;;
 ;; Themes
@@ -620,7 +630,8 @@ The DWIM behaviour of this command is as follows:
   :commands (dired)
   :hook
   ((dired-mode . dired-hide-details-mode)
-   (dired-mode . hl-line-mode))
+   (dired-mode . hl-line-mode)
+   (dired-mode . (lambda () (whitespace-mode -1))))
   :config
   (setq dired-recursive-copies 'always)
   (setq dired-recursive-deletes 'always)
@@ -682,13 +693,18 @@ The DWIM behaviour of this command is as follows:
 (use-package kotlin-mode
   :ensure t
   :config
-  (setq kotlin-tab-width 2)
-  (setq kotlin-mode-parenthesized-expression-offset 2)
-  (setq kotlin-mode-multiline-statement-offset 2)
+  (setq kotlin-tab-width 4)
+  (setq kotlin-mode-parenthesized-expression-offset 4)
+  (setq kotlin-mode-multiline-statement-offset 4)
   )
 
-(setq display-buffer-alist
-      '(("\\*compilation\\*"
-         (display-buffer-reuse-window display-buffer-use-some-window display-buffer-in-direction)
-         (direction . right)
-         (inhibit-same-window . t))))
+(add-hook 'whitespace-mode-hook
+          (lambda ()
+            (setq whitespace-style '(face tabs trailing lines tab-mark))))
+(global-whitespace-mode 1)
+
+;;(use-package whitespace-mode
+;;  :config
+;;  (setq whitespace-line-column 120)
+;;  ;; (setq whitespace-style '(face trailing lines tabs))
+;;  )
