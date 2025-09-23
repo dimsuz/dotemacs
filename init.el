@@ -158,6 +158,17 @@ The DWIM behaviour of this command is as follows:
   ;; Prevent undo tree files from polluting your git repo
   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))))
 
+(use-package magit
+  :commands magit-status
+  :bind
+  (:map global-map
+        ("C-M-g" . magit-status))
+  :config
+  (if (string-equal use-evil-or-meow "evil")
+      (add-hook 'magit-status-mode-hook (lambda () (god-local-mode -1))))
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
 (defvar use-evil-or-meow "meow")
 
 ;;
@@ -209,6 +220,7 @@ The DWIM behaviour of this command is as follows:
 	     :config
 	     (evil-collection-init))
 	   ))
+
 ;;
 ;; Meow mode
 ;;
@@ -306,6 +318,7 @@ The DWIM behaviour of this command is as follows:
 (use-package meow
   :ensure t
   :if (string-equal use-evil-or-meow "meow")
+  :straight (:host github :repo "meow-edit/meow" :branch "master")
   :config
   (meow-setup)
   (meow-global-mode 1))
@@ -507,7 +520,7 @@ The DWIM behaviour of this command is as follows:
   :bind (;; C-c bindings in `mode-specific-map'
          ("C-c M-x" . consult-mode-command)
          ("C-c h" . consult-history)
-         ("C-c k" . consult-kmacro)
+         ;; ("C-c k" . consult-kmacro)
          ("C-c m" . consult-man)
          ("C-c i" . consult-info)
          ([remap Info-search] . consult-info)
@@ -658,16 +671,6 @@ The DWIM behaviour of this command is as follows:
   (setq trashed-use-header-line t)
   (setq trashed-sort-key '("Date deleted" . t))
   (setq trashed-date-format "%Y-%m-%d %H:%M:%S"))
-
-(use-package magit
-  :commands magit-status
-  :bind
-  (:map global-map
-	("C-c g g" . magit-status))
-  :config
-  (add-hook 'magit-status-mode-hook (lambda () (god-local-mode -1)))
-  :custom
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
 (use-package project
   :ensure nil
