@@ -45,8 +45,9 @@
 (setq custom-file (locate-user-emacs-file "custom.el"))
 (load custom-file :no-error-if-file-is-missing)
 
-(setq-default indent-tabs-mode nil)   
+(setq-default indent-tabs-mode nil)
 (setq-default dabbrev-case-fold-search nil)
+(setq-default fill-column 120)
 
 ;; Do not show native compilation warnings
 (add-to-list 'display-buffer-alist
@@ -158,18 +159,20 @@ The DWIM behaviour of this command is as follows:
   ;; Prevent undo tree files from polluting your git repo
   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))))
 
+(defvar use-evil-or-meow "meow")
+
 (use-package magit
   :commands magit-status
   :bind
   (:map global-map
         ("C-M-g" . magit-status))
+  :hook
+  (magit-status-mode . (lambda () (whitespace-mode -1)))
   :config
   (if (string-equal use-evil-or-meow "evil")
       (add-hook 'magit-status-mode-hook (lambda () (god-local-mode -1))))
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
-
-(defvar use-evil-or-meow "meow")
 
 ;;
 ;; Keybindings
@@ -234,6 +237,9 @@ The DWIM behaviour of this command is as follows:
   (meow-motion-overwrite-define-key
    '("j" . meow-next)
    '("k" . meow-prev)
+   '("h" . meow-left)
+   '("l" . meow-right)
+   '("`" . dz/switch-other-buffer)
    '("<escape>" . ignore))
   (meow-leader-define-key
    ;; Use SPC (0-9) for digit arguments.
