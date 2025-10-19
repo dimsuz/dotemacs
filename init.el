@@ -103,7 +103,11 @@ The DWIM behaviour of this command is as follows:
 (global-set-key (kbd "C-c f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c C-f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-`") #'dz/switch-other-buffer)
+(global-set-key (kbd "C-c c") 'compile)
+(global-set-key (kbd "C-c r") 'recompile)
 (global-set-key (kbd "C-c C-i") #'imenu)
+(global-set-key (kbd "C-c ,") #'consult-buffer)
+(global-set-key (kbd "C-c f .") (lambda () (interactive) (dired ".")))
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-x C-z"))
 
@@ -112,6 +116,9 @@ The DWIM behaviour of this command is as follows:
          (display-buffer-reuse-window display-buffer-use-some-window display-buffer-in-direction)
          (direction . right)
          (inhibit-same-window . t))))
+
+(setq compilation-ask-about-save nil)
+(setq compile-command "./run dm")
 
 (use-package cc-mode
   :config
@@ -353,6 +360,12 @@ The DWIM behaviour of this command is as follows:
   (add-hook 'god-mode-enabled-hook #'dz/god-mode-update-cursor-type)
   (add-hook 'god-mode-disabled-hook #'dz/god-mode-update-cursor-type))
 
+(use-package yasnippet
+  :straight nil
+  :load-path "plugins/yasnippet"
+  :config
+  (yas-global-mode 1))
+
 (use-package ace-window
   :ensure t
   :config
@@ -462,8 +475,8 @@ The DWIM behaviour of this command is as follows:
   (setq org-habit-graph-column 60)
 
   (setq org-todo-keywords
-	'((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-	  (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+        '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+          (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
 
   (dz/org-font-setup))
 
@@ -479,6 +492,23 @@ The DWIM behaviour of this command is as follows:
 
 (use-package visual-fill-column
   :hook (org-mode . dz/org-mode-visual-fill))
+
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory (file-truename "~/Documents/org-roam"))
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ;; Dailies
+         ("C-c n j" . org-roam-dailies-capture-today))
+  :config
+  ;; If you're using a vertical completion framework, you might want a more informative completion interface
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (org-roam-db-autosync-mode)
+)
 
 ;;
 ;; Modeline
@@ -520,6 +550,10 @@ The DWIM behaviour of this command is as follows:
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles partial-completion)))))
 
+(defun dz/consult-ripgrep ()
+  (interactive)
+  (consult-ripgrep nil (thing-at-point 'symbol)))
+
 (use-package consult
   :ensure t
   ;; Replace bindings. Lazily loaded by `use-package'.
@@ -560,7 +594,7 @@ The DWIM behaviour of this command is as follows:
          ("M-s c" . consult-locate)
          ("M-s g" . consult-grep)
          ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
+         ("C-c s r" . dz/consult-ripgrep)
          ("M-s l" . consult-line)
          ;; search integration
          ("M-s e" . consult-isearch-history)
