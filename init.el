@@ -276,8 +276,8 @@ The DWIM behaviour of this command is as follows:
    '("1" . meow-expand-1)
    '("-" . negative-argument)
    '(";" . meow-reverse)
-   '("," . meow-inner-of-thing)
-   '("." . meow-bounds-of-thing)
+   '("." . meow-inner-of-thing)
+   '("," . meow-bounds-of-thing)
    '("[" . meow-beginning-of-thing)
    '("]" . meow-end-of-thing)
    '("a" . meow-append)
@@ -371,6 +371,13 @@ The DWIM behaviour of this command is as follows:
   :config
   (global-set-key (kbd "C-x C-o") #'ace-window)
   (setq aw-scope 'frame))
+
+(use-package avy
+  :ensure t
+  :config
+  (global-set-key (kbd "C-c jj") #'avy-goto-word-1)
+  (global-set-key (kbd "C-c ja") #'avy-goto-line)
+  (global-set-key (kbd "C-c js") #'avy-goto-char-2))
 
 ;;
 ;; Themes
