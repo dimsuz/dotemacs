@@ -108,6 +108,8 @@ The DWIM behaviour of this command is as follows:
 (global-set-key (kbd "C-c C-i") #'imenu)
 (global-set-key (kbd "C-c ,") #'consult-buffer)
 (global-set-key (kbd "C-c f .") (lambda () (interactive) (dired ".")))
+(global-set-key (kbd "C-c '") (lambda () (interactive) (set-mark-command 0)))
+(global-set-key (kbd "C-;") #'other-window)
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-x C-z"))
 
@@ -175,6 +177,8 @@ The DWIM behaviour of this command is as follows:
         ("C-M-g" . magit-status))
   :hook
   (magit-status-mode . (lambda () (whitespace-mode -1)))
+  (magit-log-mode . (lambda () (whitespace-mode -1)))
+  (magit-revision-mode . (lambda () (whitespace-mode -1)))
   :config
   (if (string-equal use-evil-or-meow "evil")
       (add-hook 'magit-status-mode-hook (lambda () (god-local-mode -1))))
@@ -750,7 +754,7 @@ The DWIM behaviour of this command is as follows:
 
 (add-hook 'whitespace-mode-hook
           (lambda ()
-            (setq whitespace-style '(face tabs trailing lines tab-mark))))
+            (setq whitespace-style '(face tabs trailing tab-mark))))
 (global-whitespace-mode 1)
 
 ;;(use-package whitespace-mode
