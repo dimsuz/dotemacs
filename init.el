@@ -161,12 +161,11 @@ The DWIM behaviour of this command is as follows:
 ;;
 ;; Undo
 ;;
-;; TODO switch to vundo
-(use-package undo-tree
+(use-package vundo
+  :ensure t
+  :defer t
   :config
-  (global-undo-tree-mode 1)
-  ;; Prevent undo tree files from polluting your git repo
-  (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))))
+  (setq vundo-glyph-alist vundo-unicode-symbols))
 
 (defvar use-evil-or-meow "meow")
 
@@ -696,6 +695,9 @@ The DWIM behaviour of this command is as follows:
   ((dired-mode . dired-hide-details-mode)
    (dired-mode . hl-line-mode)
    (dired-mode . (lambda () (whitespace-mode -1))))
+  :bind
+  (:map dired-mode-map
+        ("-" . dired-up-directory))
   :config
   (setq dired-recursive-copies 'always)
   (setq dired-recursive-deletes 'always)
