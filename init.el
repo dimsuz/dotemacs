@@ -102,7 +102,7 @@ The DWIM behaviour of this command is as follows:
 ;; Global key bindings
 (global-set-key (kbd "C-c f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c C-f i") (lambda () (interactive) (find-file user-init-file)))
-(global-set-key (kbd "C-`") #'dz/switch-other-buffer)
+(global-set-key (kbd "C-c s'") #'vertico-repeat)
 (global-set-key (kbd "C-c c") 'compile)
 (global-set-key (kbd "C-c r") 'recompile)
 (global-set-key (kbd "C-c C-i") #'imenu)
@@ -544,7 +544,9 @@ The DWIM behaviour of this command is as follows:
 ;;
 (use-package vertico
   :init
-  :hook (after-init . vertico-mode))
+  :hook
+  (after-init . vertico-mode)
+  (minibuffer-setup . vertico-repeat-save))
 
 (use-package marginalia
   :ensure t
