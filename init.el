@@ -49,12 +49,6 @@
 (setq-default dabbrev-case-fold-search nil)
 (setq-default fill-column 120)
 
-;; Do not show native compilation warnings
-(add-to-list 'display-buffer-alist
-             '("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
-               (display-buffer-no-window)
-               (allow-no-window . t)))
-
 ;; Delete the selected text upon text insertion
 (use-package delsel
   :ensure nil ; no need to install it as it is built-in
@@ -103,8 +97,7 @@ The DWIM behaviour of this command is as follows:
 (global-set-key (kbd "C-c f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c C-f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c s'") #'vertico-repeat)
-(global-set-key (kbd "C-c c") 'compile)
-(global-set-key (kbd "C-c r") 'recompile)
+(global-set-key (kbd "C-c c") 'recompile)
 (global-set-key (kbd "C-c C-i") #'imenu)
 (global-set-key (kbd "C-c ,") #'consult-buffer)
 (global-set-key (kbd "C-c f .") (lambda () (interactive) (dired ".")))
@@ -115,12 +108,19 @@ The DWIM behaviour of this command is as follows:
 
 (setq display-buffer-alist
       '(("\\*compilation\\*"
-         (display-buffer-reuse-window display-buffer-use-some-window display-buffer-in-direction)
+         (display-buffer-reuse-window display-buffer-in-direction)
          (direction . right)
-         (inhibit-same-window . t))))
+         (reusable-frames . nil)
+         (inhibit-same-window . t))
+        ;; Do not show native compilation warnings
+        ("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
+         (display-buffer-no-window)
+         (allow-no-window . t))
+        ))
 
 (setq compilation-ask-about-save nil)
 (setq compile-command "./run dm")
+(setq compilation-scroll-output 'first-error)
 
 (use-package cc-mode
   :config
@@ -265,7 +265,7 @@ The DWIM behaviour of this command is as follows:
    '("0" . meow-digit-argument)
    '("/" . meow-keypad-describe-key)
    '("?" . meow-cheatsheet)
-   '("o" . ace-window))
+   '("o" . delete-other-windows))
   (meow-normal-define-key
    '("0" . meow-expand-0)
    '("9" . meow-expand-9)
@@ -750,6 +750,9 @@ The DWIM behaviour of this command is as follows:
 
 (use-package kotlin-mode
   :ensure t
+  :bind
+  (:map kotlin-mode-map
+        ("C-c C-c" . nil))
   :config
   (setq kotlin-tab-width 4)
   (setq kotlin-mode-parenthesized-expression-offset 4)
