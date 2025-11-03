@@ -97,7 +97,8 @@ The DWIM behaviour of this command is as follows:
 (global-set-key (kbd "C-c f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c C-f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c s'") #'vertico-repeat)
-(global-set-key (kbd "C-c c") 'recompile)
+(global-set-key (kbd "C-c ss") #'isearch-forward-thing-at-point)
+(global-set-key (kbd "C-c c") #'recompile)
 (global-set-key (kbd "C-c C-i") #'imenu)
 (global-set-key (kbd "C-c ,") #'consult-buffer)
 (global-set-key (kbd "C-c f .") (lambda () (interactive) (dired ".")))
@@ -123,9 +124,11 @@ The DWIM behaviour of this command is as follows:
 (setq compilation-scroll-output 'first-error)
 
 (use-package cc-mode
-  :config
-  (define-key c-mode-map (kbd "C-c C-c") #'recompile)
-  (define-key c-mode-map (kbd "C-c C-S-c") #'compile))
+  :bind
+  (:map c-mode-map
+        ("C-c C-c" . nil)
+        ("C-c c" . nil)
+        ))
 
 (use-package nerd-icons
   :ensure t)
