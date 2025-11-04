@@ -45,6 +45,19 @@
 (setq custom-file (locate-user-emacs-file "custom.el"))
 (load custom-file :no-error-if-file-is-missing)
 
+(defvar dz-backup-directory (concat user-emacs-directory "backups"))
+(if (not (file-exists-p dz-backup-directory))
+        (make-directory dz-backup-directory t))
+(setq backup-directory-alist `(("." . ,dz-backup-directory)))
+(setq make-backup-files t               ; backup of a file the first time it is saved.
+      backup-by-copying t               ; don't clobber symlinks
+      version-control t                 ; version numbers for backup files
+      delete-old-versions t             ; delete excess backup files silently
+      kept-old-versions 6               ; oldest versions to keep when a new numbered backup is made (default: 2)
+      kept-new-versions 9               ; newest versions to keep when a new numbered backup is made (default: 2)
+      auto-save-default t               ; auto-save every buffer that visits a file
+      )
+
 (setq-default indent-tabs-mode nil)
 (setq-default dabbrev-case-fold-search nil)
 (setq-default fill-column 120)
@@ -762,9 +775,13 @@ The DWIM behaviour of this command is as follows:
   (setq kotlin-mode-multiline-statement-offset 4)
   )
 
+(use-package ws-butler
+  :ensure t
+  :hook (prog-mode . ws-butler-mode))
+
 (add-hook 'whitespace-mode-hook
           (lambda ()
-            (setq whitespace-style '(face tabs trailing tab-mark))))
+            (setq whitespace-style '(face tabs tab-mark))))
 (global-whitespace-mode 1)
 
 ;;(use-package whitespace-mode
