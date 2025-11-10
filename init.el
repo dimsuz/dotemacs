@@ -106,9 +106,24 @@ The DWIM behaviour of this command is as follows:
   (interactive)
   (switch-to-buffer (other-buffer)))
 
+(defun dz/yank-buffer-path (&optional root)
+  "Copy the current buffer's path to the kill ring."
+  (interactive)
+  (if-let* ((filename (or (buffer-file-name (buffer-base-buffer))
+                          (bound-and-true-p list-buffers-directory))))
+      (let ((path (if root
+                      (file-relative-name filename root)
+                    filename)))
+        (kill-new path)
+        (if (string= path (car kill-ring))
+            (message "Copied path: %s" path)
+          (user-error "Couldn't copy filename in current buffer")))
+    (error "Couldn't find filename in current buffer")))
+
 ;; Global key bindings
 (global-set-key (kbd "C-c f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c C-f i") (lambda () (interactive) (find-file user-init-file)))
+(global-set-key (kbd "C-c f y") #'dz/yank-buffer-path)
 (global-set-key (kbd "C-c s'") #'vertico-repeat)
 (global-set-key (kbd "C-c ss") #'isearch-forward-thing-at-point)
 (global-set-key (kbd "C-c c") #'recompile)
@@ -582,6 +597,10 @@ The DWIM behaviour of this command is as follows:
   (interactive)
   (consult-ripgrep nil (thing-at-point 'symbol)))
 
+(defun dz/consult-ripgrep-kotlin-class ()
+  (interactive)
+  (consult-ripgrep nil (concat "class " (thing-at-point 'symbol))))
+
 (use-package consult
   :ensure t
   ;; Replace bindings. Lazily loaded by `use-package'.
@@ -768,7 +787,9 @@ The DWIM behaviour of this command is as follows:
   :ensure t
   :bind
   (:map kotlin-mode-map
-        ("C-c C-c" . nil))
+        ("C-c C-c" . nil)
+        ("C-c s c" . #'dz/consult-ripgrep-kotlin-class)
+        )
   :config
   (setq kotlin-tab-width 4)
   (setq kotlin-mode-parenthesized-expression-offset 4)
