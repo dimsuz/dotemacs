@@ -126,6 +126,7 @@ The DWIM behaviour of this command is as follows:
 (global-set-key (kbd "C-c f y") #'dz/yank-buffer-path)
 (global-set-key (kbd "C-c s'") #'vertico-repeat)
 (global-set-key (kbd "C-c ss") #'isearch-forward-thing-at-point)
+(global-set-key (kbd "C-c ws") #'ace-swap-window)
 (global-set-key (kbd "C-c c") #'recompile)
 (global-set-key (kbd "C-c C-i") #'imenu)
 (global-set-key (kbd "C-c ,") #'consult-buffer)
@@ -274,7 +275,10 @@ The DWIM behaviour of this command is as follows:
   ;; free this key (opens FAQ by default) to be easier to run C-h f from meow-keypad
   (global-unset-key (kbd "C-x C-p"))
 
+  (setq meow-use-clipboard 't)
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+  (setq meow-keypad-leader-dispatch "C-c")
+
   (meow-motion-overwrite-define-key
    '("j" . meow-next)
    '("k" . meow-prev)
@@ -296,7 +300,9 @@ The DWIM behaviour of this command is as follows:
    '("0" . meow-digit-argument)
    '("/" . meow-keypad-describe-key)
    '("?" . meow-cheatsheet)
-   '("o" . delete-other-windows))
+   '("o" . delete-other-windows)
+   '("r" . revert-buffer-quick)
+   )
   (meow-normal-define-key
    '("0" . meow-expand-0)
    '("9" . meow-expand-9)
@@ -399,6 +405,12 @@ The DWIM behaviour of this command is as follows:
   :load-path "plugins/yasnippet"
   :config
   (yas-global-mode 1))
+
+(use-package wgrep
+  :straight nil
+  :load-path "plugins"
+  :config
+  (setq wgrep-enable-key "r"))
 
 (use-package ace-window
   :ensure t
@@ -583,6 +595,45 @@ The DWIM behaviour of this command is as follows:
   :ensure t
   :hook (after-init . marginalia-mode))
 
+(use-package embark
+  :ensure t
+
+  :bind
+  (("C-'" . embark-act)
+   ("M-." . embark-dwim)
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+  :init
+
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+
+  ;; Show the Embark target at point via Eldoc. You may adjust the
+  ;; Eldoc strategy, if you want to see the documentation from
+  ;; multiple providers. Beware that using this can be a little
+  ;; jarring since the message shown in the minibuffer can be more
+  ;; than one line, causing the modeline to move up and down:
+
+  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
+  ;; Add Embark to the mouse context menu. Also enable `context-menu-mode'.
+  ;; (context-menu-mode 1)
+  ;; (add-hook 'context-menu-functions #'embark-context-menu 100)
+
+  :config
+
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
+(use-package embark-consult
+  :ensure t
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
+
 (use-package orderless
   :ensure t
   :custom
@@ -600,6 +651,10 @@ The DWIM behaviour of this command is as follows:
 (defun dz/consult-ripgrep-kotlin-class ()
   (interactive)
   (consult-ripgrep nil (concat "class " (thing-at-point 'symbol))))
+
+(defun dz/consult-ripgrep-kotlin-fun ()
+  (interactive)
+  (consult-ripgrep nil (concat "fun " (thing-at-point 'symbol))))
 
 (use-package consult
   :ensure t
@@ -788,7 +843,8 @@ The DWIM behaviour of this command is as follows:
   :bind
   (:map kotlin-mode-map
         ("C-c C-c" . nil)
-        ("C-c s c" . #'dz/consult-ripgrep-kotlin-class)
+        ("C-c sc" . dz/consult-ripgrep-kotlin-class)
+        ("C-c sf" . dz/consult-ripgrep-kotlin-fun)
         )
   :config
   (setq kotlin-tab-width 4)
@@ -799,6 +855,18 @@ The DWIM behaviour of this command is as follows:
 (use-package ws-butler
   :ensure t
   :hook (prog-mode . ws-butler-mode))
+
+(use-package hideshow
+  :ensure nil ; it is built-in
+  :straight (:type built-in)
+  :hook (prog-mode . hs-minor-mode))
+
+(use-package multiple-cursors
+  :ensure t
+  :bind
+  (("C-c ee" . mc/edit-lines)
+   ("C-." . mc/mark-next-like-this)
+   ("C-," . mc/mark-next-like-this-symbol)))
 
 (add-hook 'whitespace-mode-hook
           (lambda ()
