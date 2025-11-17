@@ -168,7 +168,7 @@ The DWIM behaviour of this command is as follows:
 
 (setq display-buffer-alist
       '(("\\*compilation\\*"
-         (display-buffer-reuse-window display-buffer-in-direction)
+         (display-buffer-reuse-window display-buffer-use-some-window display-buffer-in-direction)
          (direction . right)
          (reusable-frames . nil)
          (inhibit-same-window . t))
@@ -866,8 +866,7 @@ The DWIM behaviour of this command is as follows:
   (setq js-indent-level 2)
   ;; this enables 'gc' to use the correct comment style
   (setq comment-start "// "
-        comment-end "")
-  (modify-syntax-entry ?_ "w"))
+        comment-end ""))
 
 (use-package kotlin-mode
   :ensure t
