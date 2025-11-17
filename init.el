@@ -130,7 +130,11 @@ The DWIM behaviour of this command is as follows:
 
 (defun dz/switch-other-buffer ()
   (interactive)
-  (switch-to-buffer (other-buffer)))
+  (if (and current-prefix-arg
+           (< (prefix-numeric-value current-prefix-arg) 0))
+      (save-selected-window
+        (switch-to-buffer-other-window (other-buffer)))
+    (switch-to-buffer (other-buffer))))
 
 (defun dz/yank-buffer-path (&optional root)
   "Copy the current buffer's path to the kill ring."
