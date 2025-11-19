@@ -3,14 +3,17 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+        ignore
         meow-append
         meow-back-symbol
         meow-back-word
+        meow-cancel-selection
         meow-change
         meow-delete
         meow-end-of-thing
         meow-expand-1
         meow-expand-2
+        meow-find
         meow-inner-of-thing
         meow-insert
         meow-insert-exit
@@ -18,9 +21,9 @@
         meow-kill
         meow-left
         meow-left-expand
+        meow-next
         meow-next-symbol
         meow-next-word
-        meow-next
         meow-pop-selection
         meow-prev
         meow-right

@@ -118,7 +118,8 @@ The DWIM behaviour of this command is as follows:
                 (vector (append mod (list to)))))))))
     (when input-method
       (activate-input-method current))))
-(reverse-input-method 'russian-computer)
+;; commented out because it causes issues with meow: SPC-, calls meow-cheatsheet for some reason
+;; (reverse-input-method 'russian-computer)
 
 ;; Fonts
 (if (string-equal (system-name) "dimsuzkode")
@@ -155,7 +156,7 @@ The DWIM behaviour of this command is as follows:
 (global-set-key (kbd "C-c C-f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c f y") #'dz/yank-buffer-path)
 (global-set-key (kbd "C-c s'") #'vertico-repeat)
-(global-set-key (kbd "C-c ss") #'isearch-forward-thing-at-point)
+(global-set-key (kbd "C-c sw") #'isearch-forward-thing-at-point)
 (global-set-key (kbd "C-c ws") #'ace-swap-window)
 (global-set-key (kbd "C-c c") #'recompile)
 (global-set-key (kbd "C-c C-i") #'imenu)
@@ -236,10 +237,8 @@ The DWIM behaviour of this command is as follows:
   :bind
   (:map global-map
         ("C-M-g" . magit-status))
-  :hook
-  (magit-status-mode . (lambda () (whitespace-mode -1)))
-  (magit-log-mode . (lambda () (whitespace-mode -1)))
-  (magit-revision-mode . (lambda () (whitespace-mode -1)))
+  ;; :hook
+  ;; (magit-section-set-visibility . (lambda (section) 'show))
   :config
   (if (string-equal use-evil-or-meow "evil")
       (add-hook 'magit-status-mode-hook (lambda () (god-local-mode -1))))
@@ -681,11 +680,11 @@ The DWIM behaviour of this command is as follows:
 
 (defun dz/consult-ripgrep-kotlin-class ()
   (interactive)
-  (consult-ripgrep nil (concat "class " (thing-at-point 'symbol))))
+  (consult-ripgrep nil (concat "class\\ " (thing-at-point 'symbol))))
 
 (defun dz/consult-ripgrep-kotlin-fun ()
   (interactive)
-  (consult-ripgrep nil (concat "fun " (thing-at-point 'symbol))))
+  (consult-ripgrep nil (concat "fun\\ " (thing-at-point 'symbol))))
 
 (use-package consult
   :ensure t
@@ -727,7 +726,7 @@ The DWIM behaviour of this command is as follows:
          ("M-s c" . consult-locate)
          ("M-s g" . consult-grep)
          ("M-s G" . consult-git-grep)
-         ("C-c s r" . dz/consult-ripgrep)
+         ("C-c s s" . dz/consult-ripgrep)
          ("M-s l" . consult-line)
          ;; search integration
          ("M-s e" . consult-isearch-history)
@@ -858,6 +857,24 @@ The DWIM behaviour of this command is as follows:
 ;;   :hook ((format-all-mode . format-all-ensure-formatter)
 ;; 	 (prog-mode . format-all-mode)))
 
+(use-package git-gutter
+  :hook (prog-mode . git-gutter-mode)
+  :config
+  (setq git-gutter:update-interval 0.5))
+
+(use-package git-gutter-fringe
+  :config
+  (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
+
+(use-package treesit
+  :ensure nil ; it is built-in
+  :straight (:type built-in)
+  :config
+  (add-to-list 'treesit-language-source-alist '(kotlin . ("https://github.com/fwcd/tree-sitter-kotlin")))
+  )
+
 (use-package odin-mode
   :ensure t
   :straight (:host github :repo "mattt-b/odin-mode")
@@ -875,11 +892,17 @@ The DWIM behaviour of this command is as follows:
         ("C-c C-c" . nil)
         ("C-c sc" . dz/consult-ripgrep-kotlin-class)
         ("C-c sf" . dz/consult-ripgrep-kotlin-fun)
+        ("M-." . dz/consult-ripgrep)
         )
   :config
   (setq kotlin-tab-width 4)
   (setq kotlin-mode-parenthesized-expression-offset 4)
   (setq kotlin-mode-multiline-statement-offset 4)
+  )
+
+(use-package kotlin-ts-mode
+  :straight (:host gitlab :repo "bricka/emacs-kotlin-ts-mode")
+  ;; :mode "\\.kt\\'" ; if you want this mode to be auto-enabled
   )
 
 (use-package ws-butler
@@ -896,7 +919,11 @@ The DWIM behaviour of this command is as follows:
   :bind
   (("C-c ee" . mc/edit-lines)
    ("C-." . mc/mark-next-like-this)
-   ("C-," . mc/mark-next-like-this-symbol)))
+   ("C-," . mc/mark-next-like-this-symbol)
+   :map mc/keymap
+   ("C-n" . mc/skip-to-next-like-this)
+   ("C-p" . mc/skip-to-previous-like-this)
+   ))
 
 (add-hook 'whitespace-mode-hook
           (lambda ()
