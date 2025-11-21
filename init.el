@@ -397,10 +397,17 @@ The DWIM behaviour of this command is as follows:
    '("<escape>" . ignore)
    '("`" . dz/switch-other-buffer)))
 
+(defun dz/switch-back-to-us-keyboard-layout ()
+  (let ((current-layout (shell-command-to-string "qdbus org.kde.kglobalaccel /Layouts org.kde.KeyboardLayouts.getLayout")))
+    (when (string= "1\n" current-layout)
+      (shell-command-to-string "qdbus org.kde.kglobalaccel /Layouts org.kde.KeyboardLayouts.setLayout 0"))))
+
 (use-package meow
   :ensure t
   :if (string-equal use-evil-or-meow "meow")
   :straight (:host github :repo "meow-edit/meow" :branch "master")
+  :hook
+  (meow-insert-exit-hook . dz/switch-back-to-us-keyboard-layout)
   :config
   (meow-setup)
   (meow-global-mode 1))
@@ -680,7 +687,7 @@ The DWIM behaviour of this command is as follows:
 
 (defun dz/consult-ripgrep-kotlin-class ()
   (interactive)
-  (consult-ripgrep nil (concat "class\\ " (thing-at-point 'symbol))))
+  (consult-ripgrep nil (concat "\\(class\\|interface\\)\\ " (thing-at-point 'symbol))))
 
 (defun dz/consult-ripgrep-kotlin-fun ()
   (interactive)
@@ -726,7 +733,7 @@ The DWIM behaviour of this command is as follows:
          ("M-s c" . consult-locate)
          ("M-s g" . consult-grep)
          ("M-s G" . consult-git-grep)
-         ("C-c s s" . dz/consult-ripgrep)
+         ("C-c s s" . consult-ripgrep)
          ("M-s l" . consult-line)
          ;; search integration
          ("M-s e" . consult-isearch-history)
@@ -924,6 +931,10 @@ The DWIM behaviour of this command is as follows:
    ("C-n" . mc/skip-to-next-like-this)
    ("C-p" . mc/skip-to-previous-like-this)
    ))
+
+(use-package symbol-overlay
+  :ensure t
+  )
 
 (add-hook 'whitespace-mode-hook
           (lambda ()

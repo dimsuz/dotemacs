@@ -3,6 +3,9 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+        consult-yank-pop
+        dabbrev-expand
+        electric-newline-and-maybe-indent
         ignore
         meow-append
         meow-back-symbol
@@ -30,6 +33,7 @@
         meow-right-expand
         meow-save
         meow-till
+        meow-undo
         meow-yank
         repeat
         ))
