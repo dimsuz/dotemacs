@@ -298,6 +298,19 @@ The DWIM behaviour of this command is as follows:
 ;;
 ;; Meow mode
 ;;
+(defvar dz/last-keyboard-layout-was-ru-p)
+(defun dz/switch-back-to-us-keyboard-layout ()
+  (let ((current-layout (shell-command-to-string "qdbus6 org.kde.kglobalaccel /Layouts org.kde.KeyboardLayouts.getLayout")))
+    (if (string= "1\n" current-layout)
+        (progn
+          (shell-command-to-string "qdbus6 org.kde.kglobalaccel /Layouts org.kde.KeyboardLayouts.setLayout 0")
+          (setq dz/last-keyboard-layout-was-ru-p 't))
+      (setq dz/last-keyboard-layout-was-ru-p nil))))
+
+(defun dz/maybe-switch-to-ru-keyboard-layout ()
+  (if dz/last-keyboard-layout-was-ru-p
+      (shell-command-to-string "qdbus6 org.kde.kglobalaccel /Layouts org.kde.KeyboardLayouts.setLayout 1")))
+
 (defun meow-setup ()
   ;; free this key (opens FAQ by default) to be easier to run C-h f from meow-keypad
   (global-unset-key (kbd "C-h C-f"))
@@ -307,6 +320,8 @@ The DWIM behaviour of this command is as follows:
   (setq meow-use-clipboard 't)
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
   (setq meow-keypad-leader-dispatch "C-c")
+  (add-hook 'meow-insert-exit-hook #'dz/switch-back-to-us-keyboard-layout)
+  (add-hook 'meow-insert-enter-hook #'dz/maybe-switch-to-ru-keyboard-layout)
 
   (meow-motion-overwrite-define-key
    '("j" . meow-next)
@@ -397,17 +412,10 @@ The DWIM behaviour of this command is as follows:
    '("<escape>" . ignore)
    '("`" . dz/switch-other-buffer)))
 
-(defun dz/switch-back-to-us-keyboard-layout ()
-  (let ((current-layout (shell-command-to-string "qdbus org.kde.kglobalaccel /Layouts org.kde.KeyboardLayouts.getLayout")))
-    (when (string= "1\n" current-layout)
-      (shell-command-to-string "qdbus org.kde.kglobalaccel /Layouts org.kde.KeyboardLayouts.setLayout 0"))))
-
 (use-package meow
   :ensure t
   :if (string-equal use-evil-or-meow "meow")
   :straight (:host github :repo "meow-edit/meow" :branch "master")
-  :hook
-  (meow-insert-exit-hook . dz/switch-back-to-us-keyboard-layout)
   :config
   (meow-setup)
   (meow-global-mode 1))
