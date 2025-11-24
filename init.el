@@ -949,8 +949,4 @@ The DWIM behaviour of this command is as follows:
             (setq whitespace-style '(face tabs tab-mark))))
 (global-whitespace-mode 1)
 
-;;(use-package whitespace-mode
-;;  :config
-;;  (setq whitespace-line-column 120)
-;;  ;; (setq whitespace-style '(face trailing lines tabs))
-;;  )
+(defvar project-atom nil)
