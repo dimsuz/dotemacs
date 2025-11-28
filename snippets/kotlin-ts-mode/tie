@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: Timber error
+# key: tie
+# --
+Timber.e("$1")

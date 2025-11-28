@@ -27,6 +27,7 @@
         meow-next
         meow-next-symbol
         meow-next-word
+        meow-open-below
         meow-pop-selection
         meow-prev
         meow-right

@@ -408,7 +408,8 @@ The DWIM behaviour of this command is as follows:
    '("Y" . meow-sync-grab)
    '("z" . meow-pop-selection)
    '("'" . repeat)
-   '("=" . meow-indent)
+   '("F" . meow-page-down)
+   '("V" . meow-page-up)
    '("<escape>" . ignore)
    '("`" . dz/switch-other-buffer)))
 
@@ -734,7 +735,7 @@ The DWIM behaviour of this command is as follows:
          ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
          ("M-g m" . consult-mark)
          ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
+         ("C-c si" . consult-imenu)
          ("M-g I" . consult-imenu-multi)
          ;; M-s bindings in `search-map'
          ("M-s d" . consult-find)                  ;; Alternative: consult-fd
@@ -902,6 +903,7 @@ The DWIM behaviour of this command is as follows:
 
 (use-package kotlin-mode
   :ensure t
+  :disabled
   :bind
   (:map kotlin-mode-map
         ("C-c C-c" . nil)
@@ -916,9 +918,15 @@ The DWIM behaviour of this command is as follows:
   )
 
 (use-package kotlin-ts-mode
-  :straight (:host gitlab :repo "bricka/emacs-kotlin-ts-mode")
-  ;; :mode "\\.kt\\'" ; if you want this mode to be auto-enabled
-  )
+  :straight nil
+  :load-path "plugins"
+  :mode "\\.kt\\'" ; if you want this mode to be auto-enabled
+  :bind
+  (:map kotlin-ts-mode-map
+        ("C-c sc" . dz/consult-ripgrep-kotlin-class)
+        ("C-c sf" . dz/consult-ripgrep-kotlin-fun)
+        ("M-." . dz/consult-ripgrep)
+        ))
 
 (use-package ws-butler
   :ensure t
