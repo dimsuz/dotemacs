@@ -160,7 +160,6 @@ The DWIM behaviour of this command is as follows:
 (global-set-key (kbd "C-c ws") #'ace-swap-window)
 (global-set-key (kbd "C-c c") #'recompile)
 (global-set-key (kbd "C-c C-i") #'imenu)
-(global-set-key (kbd "C-c ,") #'consult-buffer)
 (global-set-key (kbd "C-c f .") (lambda () (interactive) (dired ".")))
 (global-set-key (kbd "C-c '") (lambda () (interactive) (set-mark-command 0)))
 (global-set-key (kbd "C-;") #'other-window)
@@ -298,7 +297,7 @@ The DWIM behaviour of this command is as follows:
 ;;
 ;; Meow mode
 ;;
-(defvar dz/last-keyboard-layout-was-ru-p)
+(defvar dz/last-keyboard-layout-was-ru-p nil)
 (defun dz/switch-back-to-us-keyboard-layout ()
   (let ((current-layout (shell-command-to-string "qdbus6 org.kde.kglobalaccel /Layouts org.kde.KeyboardLayouts.getLayout")))
     (if (string= "1\n" current-layout)
@@ -500,6 +499,28 @@ The DWIM behaviour of this command is as follows:
   :config
   (load-theme 'ef-spring :no-confirm))
 
+(use-package doric-themes
+  :ensure t
+  :config
+  (setq doric-themes-italic-only-faces nil)
+  (setq doric-themes-italic-faces nil)
+  (setq doric-themes-bold-italic-faces nil)
+
+  ;; (doric-themes-select 'doric-light)
+
+  ;; ;; To load a random theme instead, use something like one of these:
+  ;;
+  ;; (doric-themes-load-random)
+  ;; (doric-themes-load-random 'light)
+  ;; (doric-themes-load-random 'dark)
+
+  ;; ;; For optimal results, also define your preferred font family (or use my `fontaine' package):
+  ;;
+  ;; (set-face-attribute 'default nil :family "Aporetic Sans Mono" :height 160)
+  ;; (set-face-attribute 'variable-pitch nil :family "Aporetic Sans" :height 1.0)
+  ;; (set-face-attribute 'fixed-pitch nil :family "Aporetic Sans Mono" :height 1.0)
+  )
+
 ;; Delimeters
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -560,6 +581,9 @@ The DWIM behaviour of this command is as follows:
                  :depth 1)
   :commands (org-capture org-agenda)
   :hook (org-mode . dz/org-mode-setup)
+  :bind
+  (:map org-mode-map
+        ("C-c ," . nil))
   :config
   (setq org-ellipsis " ▾")
 
@@ -714,8 +738,10 @@ The DWIM behaviour of this command is as follows:
          ([remap Info-search] . consult-info)
          ;; C-x bindings in `ctl-x-map'
          ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x b"   . consult-buffer)                ;; orig. switch-to-buffer
          ("C-x C-b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-c ,"   . consult-buffer)
+         ("C-c ."   . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
          ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
          ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
          ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
@@ -929,7 +955,8 @@ The DWIM behaviour of this command is as follows:
         ))
 
 (use-package ws-butler
-  :ensure t
+  :straight nil
+  :load-path "plugins"
   :hook (prog-mode . ws-butler-mode))
 
 (use-package hideshow
