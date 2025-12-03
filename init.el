@@ -231,6 +231,8 @@ The DWIM behaviour of this command is as follows:
   :config
   (setq vundo-glyph-alist vundo-unicode-symbols))
 
+(global-subword-mode 1)
+
 (defvar use-evil-or-meow "meow")
 
 (use-package magit
@@ -367,13 +369,13 @@ The DWIM behaviour of this command is as follows:
    '("]" . meow-end-of-thing)
    '("a" . meow-append)
    '("A" . meow-open-below)
-   '("b" . meow-back-word)
-   '("B" . meow-back-symbol)
+   '("B" . meow-back-word)
+   '("b" . meow-back-symbol)
    '("c" . meow-change)
    '("d" . meow-delete)
    '("D" . meow-backward-delete)
-   '("e" . meow-next-word)
-   '("E" . meow-next-symbol)
+   '("E" . meow-next-word)
+   '("e" . meow-next-symbol)
    '("f" . meow-find)
    '("g" . meow-cancel-selection)
    '("G" . meow-grab)
@@ -401,8 +403,8 @@ The DWIM behaviour of this command is as follows:
    '("u" . meow-undo)
    '("U" . meow-undo-in-selection)
    '("v" . meow-visit)
-   '("w" . meow-mark-word)
-   '("W" . meow-mark-symbol)
+   '("W" . meow-mark-word)
+   '("w" . meow-mark-symbol)
    '("x" . meow-line)
    '("X" . meow-goto-line)
    '("y" . meow-save)
@@ -889,6 +891,10 @@ The DWIM behaviour of this command is as follows:
 	("S-TAB" . dired-subtree-remove))
   :config
   (setq dired-subtree-use-backgrounds nil))
+
+(use-package dired-collapse
+  :ensure t
+  :after dired)
 
 (use-package trashed
   :ensure t
