@@ -187,6 +187,8 @@ The DWIM behaviour of this command is as follows:
   (:map c-mode-map
         ("C-c C-c" . nil)
         ("C-c c" . nil)
+        :map java-mode-map
+        ("C-c ." . nil)
         ))
 
 (use-package nerd-icons
@@ -474,6 +476,7 @@ The DWIM behaviour of this command is as follows:
 ;;
 (use-package doom-themes
   :ensure t
+  :disabled
   :config
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
@@ -491,22 +494,29 @@ The DWIM behaviour of this command is as follows:
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
+(defun dz/disable-italic-fonts ()
+  (set-face-attribute 'italic nil :slant 'normal)
+  (set-face-attribute 'bold-italic nil :slant 'normal :weight 'bold)
+  ;; bold can be disabled too:
+  ;; (set-face-attribute 'bold nil :weight 'normal)
+  )
+
 (use-package modus-themes
   :ensure t)
 
 (use-package ef-themes
   :ensure t
   :config
-  (load-theme 'ef-spring :no-confirm))
+  ;; (load-theme 'ef-spring :no-confirm)
+  )
 
 (use-package doric-themes
   :ensure t
+  :demand t
+  :hook
+  (prog-mode . dz/disable-italic-fonts)
   :config
-  (setq doric-themes-italic-only-faces nil)
-  (setq doric-themes-italic-faces nil)
-  (setq doric-themes-bold-italic-faces nil)
-
-  ;; (doric-themes-select 'doric-light)
+  (doric-themes-select 'doric-earth)
 
   ;; ;; To load a random theme instead, use something like one of these:
   ;;
