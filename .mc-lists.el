@@ -24,12 +24,14 @@
         meow-kill
         meow-left
         meow-left-expand
+        meow-line
         meow-next
         meow-next-symbol
         meow-next-word
         meow-open-below
         meow-pop-selection
         meow-prev
+        meow-replace
         meow-right
         meow-right-expand
         meow-save
