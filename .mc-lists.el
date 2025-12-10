@@ -43,6 +43,7 @@
 
 (setq mc/cmds-to-run-once
       '(
+        mc/toggle-cursor-on-click
         meow-grab
         multiple-cursors-mode
         ))

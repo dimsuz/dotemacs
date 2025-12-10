@@ -643,7 +643,12 @@ The DWIM behaviour of this command is as follows:
   ;; If you're using a vertical completion framework, you might want a more informative completion interface
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (org-roam-db-autosync-mode)
-)
+  )
+
+(use-package org-cliplink
+  :ensure t
+  :defer t
+  )
 
 ;;
 ;; Modeline
@@ -983,17 +988,18 @@ The DWIM behaviour of this command is as follows:
 (use-package multiple-cursors
   :ensure t
   :bind
-  (("C-c ee" . mc/edit-lines)
+  (
    ("C-." . mc/mark-next-like-this)
    ("C-," . mc/mark-next-like-this-symbol)
+   ("C-<down-mouse-1>" . nil)
+   ("C-<mouse-1>" . mc/toggle-cursor-on-click)
    :map mc/keymap
    ("C-n" . mc/skip-to-next-like-this)
    ("C-p" . mc/skip-to-previous-like-this)
    ))
 
-(use-package symbol-overlay
-  :ensure t
-  )
+(use-package markdown-mode
+  :ensure t)
 
 (add-hook 'whitespace-mode-hook
           (lambda ()
@@ -1001,3 +1007,9 @@ The DWIM behaviour of this command is as follows:
 (global-whitespace-mode 1)
 
 (defvar project-atom nil)
+
+(defun dz/atom-find-tui-file ()
+  "Finds a tui*.json files in atom project directory"
+  (interactive)
+  (let ((default-directory "/home/dima/projects/atom/"))
+    (call-interactively 'find-file)))
