@@ -381,6 +381,7 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
      ((parent-is "when_expression") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "comment") parent-bol 1)
      ((node-is "navigation_suffix") parent-bol kotlin-ts-mode-indent-offset)
+     ((node-is "getter") parent-bol kotlin-ts-mode-indent-offset)
      (catch-all prev-sibling 0))))
 
 ;; Imenu
