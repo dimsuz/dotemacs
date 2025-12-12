@@ -314,6 +314,13 @@ The DWIM behaviour of this command is as follows:
   (if dz/last-keyboard-layout-was-ru-p
       (shell-command-to-string "qdbus6 org.kde.kglobalaccel /Layouts org.kde.KeyboardLayouts.setLayout 1")))
 
+(defun dz/meow-indent-curly ()
+  (interactive)
+  ;; 99 is curly, found using debugger, not sure why
+  (save-excursion
+    (meow-inner-of-thing 99)
+    (indent-for-tab-command)))
+
 (defun meow-setup ()
   ;; free this key (opens FAQ by default) to be easier to run C-h f from meow-keypad
   (global-unset-key (kbd "C-h C-f"))
@@ -349,6 +356,8 @@ The DWIM behaviour of this command is as follows:
    '("?" . meow-cheatsheet)
    '("o" . delete-other-windows)
    '("r" . revert-buffer-quick)
+   '("<" . beginning-of-buffer)
+   '(">" . end-of-buffer)
    )
   (meow-normal-define-key
    '("0" . meow-expand-0)
@@ -414,7 +423,8 @@ The DWIM behaviour of this command is as follows:
    '("F" . meow-page-down)
    '("V" . meow-page-up)
    '("<escape>" . ignore)
-   '("`" . dz/switch-other-buffer)))
+   '("`" . dz/switch-other-buffer)
+   '("=" . dz/meow-indent-curly)))
 
 (use-package meow
   :ensure t
@@ -469,9 +479,8 @@ The DWIM behaviour of this command is as follows:
 (use-package avy
   :ensure t
   :config
-  (global-set-key (kbd "C-c jj") #'avy-goto-word-1)
-  (global-set-key (kbd "C-c ja") #'avy-goto-line)
-  (global-set-key (kbd "C-c js") #'avy-goto-char-2))
+  (global-set-key (kbd "C-c jj") #'avy-goto-char-2)
+  (global-set-key (kbd "C-c ja") #'avy-goto-line))
 
 ;;
 ;; Themes
@@ -956,7 +965,6 @@ The DWIM behaviour of this command is as follows:
         ("C-c C-c" . nil)
         ("C-c sc" . dz/consult-ripgrep-kotlin-class)
         ("C-c sf" . dz/consult-ripgrep-kotlin-fun)
-        ("M-." . dz/consult-ripgrep)
         )
   :config
   (setq kotlin-tab-width 4)
@@ -972,7 +980,6 @@ The DWIM behaviour of this command is as follows:
   (:map kotlin-ts-mode-map
         ("C-c sc" . dz/consult-ripgrep-kotlin-class)
         ("C-c sf" . dz/consult-ripgrep-kotlin-fun)
-        ("M-." . dz/consult-ripgrep)
         ))
 
 (use-package ws-butler
@@ -990,7 +997,7 @@ The DWIM behaviour of this command is as follows:
   :bind
   (
    ("C-." . mc/mark-next-like-this)
-   ("C-," . mc/mark-next-like-this-symbol)
+   ("C-," . mc/mark-all-like-this-dwim)
    ("C-<down-mouse-1>" . nil)
    ("C-<mouse-1>" . mc/toggle-cursor-on-click)
    :map mc/keymap
@@ -1000,6 +1007,13 @@ The DWIM behaviour of this command is as follows:
 
 (use-package markdown-mode
   :ensure t)
+
+(use-package dumb-jump
+  :ensure t
+  :defer t
+  :hook
+  (xref-backend-functions . dumb-jump-xref-activate)
+  )
 
 (add-hook 'whitespace-mode-hook
           (lambda ()

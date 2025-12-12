@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: Section comment
+# key: ccc
+# --
+//
+// $1
+//
