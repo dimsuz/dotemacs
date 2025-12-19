@@ -41,6 +41,7 @@
 (menu-bar-mode -1)
 (set-fringe-mode 10)
 (save-place-mode 1)
+(winner-mode 1)
 
 (setq custom-file (locate-user-emacs-file "custom.el"))
 (load custom-file :no-error-if-file-is-missing)
@@ -372,6 +373,7 @@ The DWIM behaviour of this command is as follows:
    '("1" . meow-expand-1)
    '("-" . negative-argument)
    '(";" . meow-reverse)
+   '(":" . avy-goto-char-2)
    '("." . meow-inner-of-thing)
    '("," . meow-bounds-of-thing)
    '("[" . meow-beginning-of-thing)
@@ -794,7 +796,7 @@ The DWIM behaviour of this command is as follows:
          ("M-s c" . consult-locate)
          ("M-s g" . consult-grep)
          ("M-s G" . consult-git-grep)
-         ("C-c s s" . consult-ripgrep)
+         ("C-c s s" . dz/consult-ripgrep)
          ("M-s l" . consult-line)
          ;; search integration
          ("M-s e" . consult-isearch-history)
@@ -972,6 +974,10 @@ The DWIM behaviour of this command is as follows:
   (setq kotlin-mode-multiline-statement-offset 4)
   )
 
+(defun dz/kotlin-move-to-last-import ()
+  (interactive)
+  (search-backward "import " nil t))
+
 (use-package kotlin-ts-mode
   :straight nil
   :load-path "plugins"
@@ -980,6 +986,7 @@ The DWIM behaviour of this command is as follows:
   (:map kotlin-ts-mode-map
         ("C-c sc" . dz/consult-ripgrep-kotlin-class)
         ("C-c sf" . dz/consult-ripgrep-kotlin-fun)
+        ("C-c ji" . dz/kotlin-move-to-last-import)
         ))
 
 (use-package ws-butler
@@ -997,7 +1004,7 @@ The DWIM behaviour of this command is as follows:
   :bind
   (
    ("C-." . mc/mark-next-like-this)
-   ("C-," . mc/mark-all-like-this-dwim)
+   ("C-," . mc/mark-next-like-this-symbol)
    ("C-<down-mouse-1>" . nil)
    ("C-<mouse-1>" . mc/toggle-cursor-on-click)
    :map mc/keymap

@@ -5,11 +5,15 @@
       '(
         consult-yank-pop
         dabbrev-expand
+        dired-flag-file-deletion
         electric-newline-and-maybe-indent
         ignore
+        indent-for-tab-command
+        kill-region
         meow-append
         meow-back-symbol
         meow-back-word
+        meow-beginning-of-thing
         meow-cancel-selection
         meow-change
         meow-delete
