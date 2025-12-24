@@ -152,6 +152,16 @@ The DWIM behaviour of this command is as follows:
           (user-error "Couldn't copy filename in current buffer")))
     (error "Couldn't find filename in current buffer")))
 
+(defun dz/duplicate-line ()
+  (interactive)
+  (save-excursion
+    (let ((beg (progn (beginning-of-line) (point)))
+          (end (progn (end-of-line) (point))))
+      (kill-ring-save beg end))
+    (open-line 1)
+    (forward-line 1)
+    (yank)))
+
 ;; Global key bindings
 (global-set-key (kbd "C-c f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c C-f i") (lambda () (interactive) (find-file user-init-file)))
@@ -164,6 +174,7 @@ The DWIM behaviour of this command is as follows:
 (global-set-key (kbd "C-c f .") (lambda () (interactive) (dired ".")))
 (global-set-key (kbd "C-c '") (lambda () (interactive) (set-mark-command 0)))
 (global-set-key (kbd "C-;") #'other-window)
+(global-set-key (kbd "C-c d") #'dz/duplicate-line)
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-x C-z"))
 
@@ -322,6 +333,12 @@ The DWIM behaviour of this command is as follows:
     (meow-inner-of-thing 99)
     (indent-for-tab-command)))
 
+(defun dz/meow-yank-line ()
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (meow-yank)))
+
 (defun meow-setup ()
   ;; free this key (opens FAQ by default) to be easier to run C-h f from meow-keypad
   (global-unset-key (kbd "C-h C-f"))
@@ -376,8 +393,8 @@ The DWIM behaviour of this command is as follows:
    '(":" . avy-goto-char-2)
    '("." . meow-inner-of-thing)
    '("," . meow-bounds-of-thing)
-   '("[" . meow-beginning-of-thing)
-   '("]" . meow-end-of-thing)
+   '("<" . meow-beginning-of-thing)
+   '(">" . meow-end-of-thing)
    '("a" . meow-append)
    '("A" . meow-open-below)
    '("B" . meow-back-word)
@@ -404,6 +421,7 @@ The DWIM behaviour of this command is as follows:
    '("n" . meow-search)
    '("o" . meow-block)
    '("O" . meow-to-block)
+   '("P" . dz/meow-yank-line)
    '("p" . meow-yank)
    '("q" . meow-quit)
    '("Q" . meow-goto-line)
