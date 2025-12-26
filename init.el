@@ -762,7 +762,9 @@ The DWIM behaviour of this command is as follows:
 
 (defun dz/consult-ripgrep ()
   (interactive)
-  (consult-ripgrep nil (thing-at-point 'symbol)))
+  (if (use-region-p)
+    (consult-ripgrep nil (buffer-substring-no-properties (region-beginning) (region-end)))
+    (consult-ripgrep)))
 
 (defun dz/consult-ripgrep-kotlin-class ()
   (interactive)
