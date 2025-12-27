@@ -972,6 +972,9 @@ The DWIM behaviour of this command is as follows:
 (use-package odin-mode
   :ensure t
   :straight (:host github :repo "mattt-b/odin-mode")
+  :bind
+  (:map odin-mode-map
+        ("M-." . xref-find-definitions-other-window))
   :config
   (setq indent-tabs-mode nil)
   (setq js-indent-level 2)
@@ -1035,11 +1038,9 @@ The DWIM behaviour of this command is as follows:
 (use-package markdown-mode
   :ensure t)
 
+(add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
 (use-package dumb-jump
   :ensure t
-  :defer t
-  :hook
-  (xref-backend-functions . dumb-jump-xref-activate)
   )
 
 (add-hook 'whitespace-mode-hook
