@@ -969,6 +969,99 @@ The DWIM behaviour of this command is as follows:
   (add-to-list 'treesit-language-source-alist '(kotlin . ("https://github.com/fwcd/tree-sitter-kotlin")))
   )
 
+;; This is a copy of the same function from the js.el with fixed
+;; switch/case indent when using Allman braces style
+;; Changed parts are marked with @dz comments
+;; js-indent-line which calls this function is used in "odin-mode"
+(defun js--proper-indentation (parse-status)
+  "Return the proper indentation for the current line."
+  (save-excursion
+    (back-to-indentation)
+    (cond ((nth 4 parse-status)    ; inside comment
+           (js--get-c-offset 'c (nth 8 parse-status)))
+          ((nth 3 parse-status) 0) ; inside string
+          ((when (and js-jsx-syntax (not js-jsx--indent-col))
+             (save-excursion (js-jsx--indentation parse-status))))
+          ((and (eq (char-after) ?#)
+                (save-excursion
+                  (forward-char 1)
+                  (looking-at-p cpp-font-lock-keywords-source-directives)))
+           0)
+          ((save-excursion (js--beginning-of-macro)) 4)
+          ;; Indent array comprehension continuation lines specially.
+          ((let ((bracket (nth 1 parse-status))
+                 beg)
+             (and bracket
+                  (not (js--same-line bracket))
+                  (setq beg (js--indent-in-array-comp bracket))
+                  ;; At or after the first loop?
+                  (>= (point) beg)
+                  (js--array-comp-indentation bracket beg))))
+          ((js--chained-expression-p))
+          ((js--ctrl-statement-indentation))
+          ((js--multi-line-declaration-indentation))
+          ((nth 1 parse-status)
+	   ;; A single closing paren/bracket should be indented at the
+	   ;; same level as the opening statement. Same goes for
+	   ;; "case" and "default".
+           (let ((same-indent-p (looking-at "[]})]"))
+                 (switch-keyword-p (looking-at "default\\_>\\|case\\_>[^:]"))
+                 (continued-expr-p (js--continued-expression-p)))
+             (goto-char (nth 1 parse-status)) ; go to the opening char
+             (if (or (not js-indent-align-list-continuation)
+                     (looking-at "[({[]\\s-*\\(/[/*]\\|$\\)")
+                     (save-excursion (forward-char) (js--broken-arrow-terminates-line-p)))
+                 (progn ; nothing following the opening paren/bracket
+                   (skip-syntax-backward " ")
+                   (when (eq (char-before) ?\)) (backward-list))
+                   (back-to-indentation)
+                   (js--maybe-goto-declaration-keyword-end parse-status)
+                   (let* ((in-switch-p (unless same-indent-p
+                                         ;; @dz this part is modified to also check for switch keyword
+                                         ;; on the previous line (in case of "allman" brace style)
+                                         (or (looking-at "\\_<switch\\_>")
+                                             (save-excursion
+                                               (previous-line)
+                                               (back-to-indentation)
+                                               (looking-at "\\_<switch\\_>")))))
+                          (same-indent-p (or same-indent-p
+                                             (and switch-keyword-p
+                                                  in-switch-p)))
+                          (indent
+                           (+
+                            (cond
+                             ((and js-jsx--indent-attribute-line
+                                   (eq js-jsx--indent-attribute-line
+                                       (line-number-at-pos)))
+                              js-jsx--indent-col)
+                             (t
+                              (current-column)))
+                            (cond (same-indent-p 0)
+                                  (continued-expr-p
+                                   (+ (* 2 js-indent-level)
+                                      js-expr-indent-offset))
+                                  (t
+                                   (+ js-indent-level
+                                      (pcase (char-after (nth 1 parse-status))
+                                        (?\( js-paren-indent-offset)
+                                        (?\[ js-square-indent-offset)
+                                        (?\{ js-curly-indent-offset))))))))
+                     ;; @dz always add indent for switch, removed var
+                     (if in-switch-p
+                         (+ indent js-indent-level)
+                       indent)))
+               ;; If there is something following the opening
+               ;; paren/bracket, everything else should be indented at
+               ;; the same level.
+               (unless same-indent-p
+                 (forward-char)
+                 (skip-chars-forward " \t"))
+               (current-column))))
+
+          ((js--continued-expression-p)
+           (+ js-indent-level js-expr-indent-offset))
+          (t (prog-first-column)))))
+
 (use-package odin-mode
   :ensure t
   :straight (:host github :repo "mattt-b/odin-mode")
@@ -1011,6 +1104,12 @@ The DWIM behaviour of this command is as follows:
         ("C-c sf" . dz/consult-ripgrep-kotlin-fun)
         ("C-c ji" . dz/kotlin-move-to-last-import)
         ))
+
+(use-package go-mode
+  :straight nil
+  :load-path "plugins"
+  :mode "\\.go\\'"
+  )
 
 (use-package ws-butler
   :straight nil
