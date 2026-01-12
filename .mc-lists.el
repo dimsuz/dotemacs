@@ -3,6 +3,7 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+        c-electric-delete-forward
         consult-yank-pop
         dabbrev-expand
         dired-flag-file-deletion

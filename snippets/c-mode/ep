@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: ep
+# key: ep
+# --
+fprintf(stderr, "$1\n");

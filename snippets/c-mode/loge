@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: log error
+# key: loge
+# condition: t
+# --
+fprintf(stderr, "[error] $1\n");

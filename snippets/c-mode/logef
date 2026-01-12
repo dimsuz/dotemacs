@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: log error formatted
+# key: logef
+# condition: t
+# --
+fprintf(stderr, "[error] $1\n", 

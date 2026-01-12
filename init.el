@@ -194,6 +194,12 @@ The DWIM behaviour of this command is as follows:
 (setq compile-command "./run dm")
 (setq compilation-scroll-output 'first-error)
 
+(defun dz/c-mode-hook ()
+  (c-set-style "ellemtel")
+  (setq c-basic-offset 2)
+  (setq c-indent-level 2)
+)
+
 (use-package cc-mode
   :bind
   (:map c-mode-map
@@ -201,7 +207,10 @@ The DWIM behaviour of this command is as follows:
         ("C-c c" . nil)
         :map java-mode-map
         ("C-c ." . nil)
-        ))
+        )
+  :hook
+  (c-mode-common . dz/c-mode-hook)
+  )
 
 (use-package nerd-icons
   :ensure t)
@@ -1005,7 +1014,7 @@ The DWIM behaviour of this command is as follows:
 	   ;; same level as the opening statement. Same goes for
 	   ;; "case" and "default".
            (let ((same-indent-p (looking-at "[]})]"))
-                 (switch-keyword-p (looking-at "default\\_>\\|case\\_>[^:]"))
+                 (switch-keyword-p (looking-at "default\\_>\\|case\\_>"))
                  (continued-expr-p (js--continued-expression-p)))
              (goto-char (nth 1 parse-status)) ; go to the opening char
              (if (or (not js-indent-align-list-continuation)
@@ -1109,6 +1118,11 @@ The DWIM behaviour of this command is as follows:
   :straight nil
   :load-path "plugins"
   :mode "\\.go\\'"
+  )
+
+(use-package posframe
+  :straight nil
+  :load-path "plugins"
   )
 
 (use-package ws-butler

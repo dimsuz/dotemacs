@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: log warning
+# key: logw
+# condition: t
+# --
+fprintf(stderr, "[warning] $1\n");
