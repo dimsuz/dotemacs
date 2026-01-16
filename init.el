@@ -266,6 +266,7 @@ The DWIM behaviour of this command is as follows:
   :config
   (if (string-equal use-evil-or-meow "evil")
       (add-hook 'magit-status-mode-hook (lambda () (god-local-mode -1))))
+  (setq magit-list-refs-sortby '("-creatordate"))
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
@@ -720,12 +721,18 @@ The DWIM behaviour of this command is as follows:
   :ensure t
   :hook (after-init . marginalia-mode))
 
+(defun dz/embark-dwim-other-window ()
+  (interactive)
+  (other-window-prefix)
+  (embark-dwim))
+
 (use-package embark
   :ensure t
 
   :bind
   (("C-'" . embark-act)
    ("M-." . embark-dwim)
+   ("C-c M-." . dz/embark-dwim-other-window)
    ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
 
   :init

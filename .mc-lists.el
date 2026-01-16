@@ -8,9 +8,11 @@
         dabbrev-expand
         dired-flag-file-deletion
         electric-newline-and-maybe-indent
+        forward-symbol
         ignore
         indent-for-tab-command
         kill-region
+        mark-word
         meow-append
         meow-back-symbol
         meow-back-word
@@ -30,6 +32,7 @@
         meow-left
         meow-left-expand
         meow-line
+        meow-mark-symbol
         meow-next
         meow-next-symbol
         meow-next-word
