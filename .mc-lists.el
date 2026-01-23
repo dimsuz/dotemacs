@@ -5,6 +5,7 @@
       '(
         c-electric-delete-forward
         consult-yank-pop
+        cycle-spacing
         dabbrev-expand
         dired-flag-file-deletion
         electric-newline-and-maybe-indent

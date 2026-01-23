@@ -349,6 +349,19 @@ The DWIM behaviour of this command is as follows:
     (beginning-of-line)
     (meow-yank)))
 
+(defun dz/meow-search-forward-word-at-point ()
+  "Search forward word under point"
+  (interactive)
+  (meow-mark-symbol 1)
+  (meow-search 0))
+
+(defun dz/meow-search-backward-word-at-point ()
+  "Search forward word under point"
+  (interactive)
+  (meow-mark-symbol 1)
+  (meow-search -1)
+  (meow-search 0))
+
 (defun meow-setup ()
   ;; free this key (opens FAQ by default) to be easier to run C-h f from meow-keypad
   (global-unset-key (kbd "C-h C-f"))
@@ -367,7 +380,10 @@ The DWIM behaviour of this command is as follows:
    '("h" . meow-left)
    '("l" . meow-right)
    '("`" . dz/switch-other-buffer)
-   '("<escape>" . ignore))
+   '("<escape>" . ignore)
+   '("*" . dz/meow-search-forward-word-at-point)
+   '("#" . dz/meow-search-backward-word-at-point)
+   )
   (meow-leader-define-key
    ;; Use SPC (0-9) for digit arguments.
    '("1" . meow-digit-argument)
@@ -454,7 +470,10 @@ The DWIM behaviour of this command is as follows:
    '("V" . meow-page-up)
    '("<escape>" . ignore)
    '("`" . dz/switch-other-buffer)
-   '("=" . dz/meow-indent-curly)))
+   '("=" . dz/meow-indent-curly)
+   '("*" . dz/meow-search-forward-word-at-point)
+   '("#" . dz/meow-search-backward-word-at-point)
+   ))
 
 (use-package meow
   :ensure t
