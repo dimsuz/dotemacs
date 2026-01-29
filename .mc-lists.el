@@ -3,12 +3,14 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+        backward-char
         c-electric-delete-forward
         consult-yank-pop
         cycle-spacing
         dabbrev-expand
         dired-flag-file-deletion
         electric-newline-and-maybe-indent
+        forward-char
         forward-symbol
         ignore
         indent-for-tab-command
@@ -47,11 +49,15 @@
         meow-till
         meow-undo
         meow-yank
+        next-line
+        previous-line
         repeat
+        self-insert-command
         ))
 
 (setq mc/cmds-to-run-once
       '(
+        avy-goto-word-1
         mc/toggle-cursor-on-click
         meow-grab
         multiple-cursors-mode

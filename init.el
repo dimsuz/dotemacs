@@ -152,6 +152,12 @@ The DWIM behaviour of this command is as follows:
           (user-error "Couldn't copy filename in current buffer")))
     (error "Couldn't find filename in current buffer")))
 
+(defun dz/move-current-buffer-other-window ()
+  "Move the current buffer to other window and switch to previous buffer in current window"
+  (interactive)
+  (display-buffer (current-buffer) '((display-buffer-use-some-window) (inhibit-same-window . t)))
+  (dz/switch-other-buffer))
+
 (defun dz/duplicate-line ()
   (interactive)
   (save-excursion
@@ -169,6 +175,7 @@ The DWIM behaviour of this command is as follows:
 (global-set-key (kbd "C-c s'") #'vertico-repeat)
 (global-set-key (kbd "C-c sw") #'isearch-forward-thing-at-point)
 (global-set-key (kbd "C-c ws") #'ace-swap-window)
+(global-set-key (kbd "C-c wm") #'dz/move-current-buffer-other-window)
 (global-set-key (kbd "C-c c") #'recompile)
 (global-set-key (kbd "C-c C-i") #'imenu)
 (global-set-key (kbd "C-c f .") (lambda () (interactive) (dired ".")))
@@ -485,6 +492,13 @@ The DWIM behaviour of this command is as follows:
 
 (defun dz/god-mode-update-cursor-type ()
   (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
+
+(use-package boon
+  :ensure t
+  :if (string-equal use-evil-or-meow "boon")
+  :config
+  (require 'boon-qwerty)
+  (boon-mode))
 
 (use-package god-mode
   :ensure t
