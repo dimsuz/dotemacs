@@ -681,6 +681,7 @@ The DWIM behaviour of this command is as follows:
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
   (setq org-return-follows-link t)
+  (setq org-confirm-babel-evaluate nil)
 
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
@@ -689,6 +690,10 @@ The DWIM behaviour of this command is as follows:
   (setq org-todo-keywords
         '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
           (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((shell . t)))
 
   ;; (dz/org-font-setup)
   )
@@ -1120,9 +1125,6 @@ The DWIM behaviour of this command is as follows:
 (use-package odin-mode
   :ensure t
   :straight (:host github :repo "mattt-b/odin-mode")
-  :bind
-  (:map odin-mode-map
-        ("M-." . xref-find-definitions-other-window))
   :config
   (setq indent-tabs-mode nil)
   (setq js-indent-level 2)

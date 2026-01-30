@@ -56,6 +56,7 @@
         meow-yank
         next-line
         previous-line
+        org-self-insert-command
         repeat
         self-insert-command
         undefined
