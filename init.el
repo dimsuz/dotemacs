@@ -168,6 +168,10 @@ The DWIM behaviour of this command is as follows:
     (forward-line 1)
     (yank)))
 
+(defun dz/save-some-buffers-silently ()
+  (interactive)
+  (save-some-buffers 't))
+
 ;; Global key bindings
 (global-set-key (kbd "C-c f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c C-f i") (lambda () (interactive) (find-file user-init-file)))
@@ -182,6 +186,7 @@ The DWIM behaviour of this command is as follows:
 (global-set-key (kbd "C-c '") (lambda () (interactive) (set-mark-command 0)))
 (global-set-key (kbd "C-;") #'other-window)
 (global-set-key (kbd "C-c d") #'dz/duplicate-line)
+(global-set-key (kbd "C-x C-s") #'dz/save-some-buffers-silently)
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-x C-z"))
 
@@ -275,7 +280,8 @@ The DWIM behaviour of this command is as follows:
       (add-hook 'magit-status-mode-hook (lambda () (god-local-mode -1))))
   (setq magit-list-refs-sortby '("-creatordate"))
   :custom
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+  (magit-log-margin '(t "%Y-%m-%d %H:%M " magit-log-margin-width t 18)))
 
 ;;
 ;; Keybindings

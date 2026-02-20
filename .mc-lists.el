@@ -8,6 +8,8 @@
         consult-yank-pop
         cycle-spacing
         dabbrev-expand
+        default-indent-new-line
+        delete-char
         dired-flag-file-deletion
         electric-newline-and-maybe-indent
         forward-char
@@ -15,6 +17,8 @@
         ignore
         indent-for-tab-command
         kill-region
+        kill-word
+        mark-sexp
         mark-word
         meow-append
         meow-back-symbol
@@ -36,6 +40,7 @@
         meow-left-expand
         meow-line
         meow-mark-symbol
+        meow-mark-word
         meow-next
         meow-next-symbol
         meow-next-word
@@ -53,12 +58,15 @@
         previous-line
         repeat
         self-insert-command
+        undefined
         ))
 
 (setq mc/cmds-to-run-once
       '(
         avy-goto-word-1
+        dz/meow-search-backward-word-at-point
         mc/toggle-cursor-on-click
         meow-grab
         multiple-cursors-mode
+        save-some-buffers
         ))
