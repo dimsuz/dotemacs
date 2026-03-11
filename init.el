@@ -123,8 +123,8 @@ The DWIM behaviour of this command is as follows:
 ;; (reverse-input-method 'russian-computer)
 
 ;; Fonts
-(if (string-equal (system-name) "dimsuzkode")
-    (set-face-attribute 'default nil :font "Iosevka" :height 110)
+(if (string-equal (system-name) "D7KGP4DMXQ")
+    (set-face-attribute 'default nil :font "Jetbrains Mono" :height 160)
   (set-face-attribute 'default nil :font "Jetbrains Mono" :height 130))
 
 ;; Make ESC quit prompts
@@ -1209,10 +1209,4 @@ The DWIM behaviour of this command is as follows:
             (setq whitespace-style '(face tabs tab-mark))))
 (global-whitespace-mode 1)
 
-(defvar project-atom nil)
-
-(defun dz/atom-find-tui-file ()
-  "Finds a tui*.json files in atom project directory"
-  (interactive)
-  (let ((default-directory "/home/dima/projects/atom/"))
-    (call-interactively 'find-file)))
+(defvar project-bitrix-android nil)
