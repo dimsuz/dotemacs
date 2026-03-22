@@ -172,6 +172,31 @@ The DWIM behaviour of this command is as follows:
   (interactive)
   (save-some-buffers 't))
 
+(defun dz/kill-buffer-and-window-when-no-prev-buffers (buffer)
+  "Kill buffer and its window, but only if there were no other buffers displayed in this window, otherwise kill only buffer"
+  (with-current-buffer buffer
+    (if (null (window-prev-buffers (get-buffer-window buffer)))
+        (kill-buffer-and-window)
+      (kill-buffer buffer))))
+
+(defun dz/auto-close-compile-buffer (buffer status)
+  "Auto-close the compilation buffer if there are no errors or warnings.
+BUFFER is the compilation buffer, STATUS is the exit status string."
+  (unless (string-match "exited abnormally" status)
+    (with-current-buffer buffer
+      (let ((has-errors (text-property-search-forward 'face 'compilation-error-face))
+            (has-warnings (text-property-search-forward 'face 'compilation-warning-face)))
+        (cond
+         ((and (not has-errors) (not has-warnings))
+          (message "Compilation successful")
+          (dz/kill-buffer-and-window-when-no-prev-buffers buffer))
+         ((and (not has-errors) has-warnings)
+          (message "Compilation finished with warnings"))
+         ;; Errors: keep buffer open (default behavior)
+         (t nil))))))
+
+(add-to-list 'compilation-finish-functions 'dz/auto-close-compile-buffer)
+
 ;; Global key bindings
 (global-set-key (kbd "C-c f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c C-f i") (lambda () (interactive) (find-file user-init-file)))
@@ -1198,6 +1223,9 @@ The DWIM behaviour of this command is as follows:
 
 (use-package markdown-mode
   :ensure t)
+
+(use-package glsl-mode
+    :ensure t)
 
 (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
 (use-package dumb-jump
