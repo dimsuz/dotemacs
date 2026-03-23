@@ -355,7 +355,7 @@ This function is heavily inspired by `js--fontify-template-string'."
      ((parent-is "anonymous_initializer") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "statements") parent-bol 0)
      ((parent-is "catch_block") parent-bol kotlin-ts-mode-indent-offset)
-     ((parent-is "class_body") parent-bol kotlin-ts-mode-indent-offset)
+     ((n-p-gp nil "class_body" "class_declaration") grand-parent kotlin-ts-mode-indent-offset)
      ((parent-is "control_structure_body") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "finally_block") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "function_body") parent-bol kotlin-ts-mode-indent-offset)
