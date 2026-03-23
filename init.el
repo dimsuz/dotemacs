@@ -152,6 +152,13 @@ The DWIM behaviour of this command is as follows:
           (user-error "Couldn't copy filename in current buffer")))
     (error "Couldn't find filename in current buffer")))
 
+(defun dz/yank-whole-buffer ()
+  "Copy current buffer's content to the kill ring"
+  (interactive)
+  (save-excursion
+    (kill-ring-save (point-min) (point-max)))
+  (message "Buffer content copied."))
+
 (defun dz/move-current-buffer-other-window ()
   "Move the current buffer to other window and switch to previous buffer in current window"
   (interactive)
@@ -201,6 +208,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (global-set-key (kbd "C-c f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c C-f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c f y") #'dz/yank-buffer-path)
+(global-set-key (kbd "C-c f c") #'dz/yank-whole-buffer)
 (global-set-key (kbd "C-c s'") #'vertico-repeat)
 (global-set-key (kbd "C-c sw") #'isearch-forward-thing-at-point)
 (global-set-key (kbd "C-c ws") #'ace-swap-window)
@@ -214,6 +222,9 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (global-set-key (kbd "C-x C-s") #'dz/save-some-buffers-silently)
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-x C-z"))
+
+;; Projects
+(defvar project-bitrix-android nil)
 
 (setq display-buffer-alist
       '(("\\*compilation\\*"
@@ -1203,6 +1214,14 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   :load-path "plugins"
   :hook (prog-mode . ws-butler-mode))
 
+(use-package nxml-mode
+  :straight nil
+  :custom
+  (setq nxml-child-indent 4)
+  (setq nxml-attribute-indent 4)
+  (setq nxml-outline-child-indent 4)
+  )
+
 (use-package hideshow
   :ensure nil ; it is built-in
   :straight (:type built-in)
@@ -1232,9 +1251,10 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   :ensure t
   )
 
+(use-package php-mode
+  :ensure t)
+
 (add-hook 'whitespace-mode-hook
           (lambda ()
             (setq whitespace-style '(face tabs tab-mark))))
 (global-whitespace-mode 1)
-
-(defvar project-bitrix-android nil)
