@@ -55,11 +55,12 @@
         meow-undo
         meow-yank
         next-line
-        previous-line
         org-self-insert-command
+        previous-line
         repeat
         self-insert-command
         undefined
+        wdired--self-insert
         ))
 
 (setq mc/cmds-to-run-once
