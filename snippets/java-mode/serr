@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: System.err.println()
+# key: serr
+# --
+System.err.println("$1");
