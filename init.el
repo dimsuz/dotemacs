@@ -122,8 +122,10 @@ The DWIM behaviour of this command is as follows:
 ;; commented out because it causes issues with meow: SPC-, calls meow-cheatsheet for some reason
 ;; (reverse-input-method 'russian-computer)
 
+(setq host-bitrix-mac-p (string-equal (system-name) "D7KGP4DMXQ"))
+
 ;; Fonts
-(if (string-equal (system-name) "D7KGP4DMXQ")
+(if host-bitrix-mac-p
     (set-face-attribute 'default nil :font "Jetbrains Mono" :height 160)
   (set-face-attribute 'default nil :font "Jetbrains Mono" :height 130))
 
@@ -790,8 +792,8 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 ;; Modeline
 ;;
 ;; TODO customize modeline
-(use-package all-the-icons
-  :if (display-graphic-p))
+;; (use-package all-the-icons
+;;   :if (display-graphic-p))
 
 (use-package doom-modeline
   :ensure t
@@ -964,6 +966,8 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   ;; Configure other variables and modes in the :config section,
   ;; after lazily loading the package.
   :config
+  (when host-bitrix-mac-p
+    (setq consult-ripgrep-args "/opt/homebrew/bin/rg --null --line-buffered --color=never --max-columns=1000 --path-separator /   --smart-case --no-heading --with-filename --line-number --search-zip"))
 
   ;; Optionally configure preview. The default value
   ;; is 'any, such that any key triggers the preview.
@@ -1039,7 +1043,12 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 	("<backtab>" . dired-subtree-remove)
 	("S-TAB" . dired-subtree-remove))
   :config
-  (setq dired-subtree-use-backgrounds nil))
+  (setq dired-subtree-use-backgrounds nil)
+  ;; (advice-add 'dired-subtree-toggle :after (lambda ()
+  ;;                                            (interactive)
+  ;;                                            (when nerd-icons-dired-mode
+  ;;                                              (revert-buffer))))
+  )
 
 (use-package dired-collapse
   :ensure t
@@ -1275,3 +1284,11 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
           (lambda ()
             (setq whitespace-style '(face tabs tab-mark))))
 (global-whitespace-mode 1)
+
+;; TODO write this!
+(defun dz/open-build-gradle ()
+  "Opens closest build.gradle file found in parent directories"
+  (interactive)
+  (let ((dir (file-name-directory (buffer-file-name))))
+    (message dir))
+  )
