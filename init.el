@@ -202,6 +202,22 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
          ;; Errors: keep buffer open (default behavior)
          (t nil))))))
 
+(defun dz/backward-kill-whitespace ()
+  (interactive)
+  (let ((end (point)))
+    (skip-chars-backward " \t\n")
+    (kill-region (point) end)))
+
+(defun dz/kill-whitespace-or-word-backward ()
+  (interactive)
+  (cond
+   ((looking-back (rx (char blank)) 1)
+    (dz/backward-kill-whitespace))
+   (t
+    (backward-kill-word 1))
+   )
+  )
+
 (add-to-list 'compilation-finish-functions 'dz/auto-close-compile-buffer)
 
 ;; Global key bindings
@@ -220,6 +236,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (global-set-key (kbd "C-;") #'other-window)
 (global-set-key (kbd "C-c d") #'dz/duplicate-line)
 (global-set-key (kbd "C-x C-s") #'dz/save-some-buffers-silently)
+(global-set-key (kbd "M-DEL") #'dz/kill-whitespace-or-word-backward)
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-x C-z"))
 

@@ -5,6 +5,7 @@
       '(
         backward-char
         c-electric-delete-forward
+        c-electric-paren
         consult-yank-pop
         cycle-spacing
         dabbrev-expand
