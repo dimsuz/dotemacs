@@ -411,10 +411,17 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
 (defun dz/meow-indent-curly ()
   (interactive)
-  ;; 99 is curly, found using debugger, not sure why
+  ;; 99 is curly (codepoint of 'c')
   (save-excursion
     (meow-inner-of-thing 99)
     (indent-for-tab-command)))
+
+(defun dz/meow-change-till-round ()
+  (interactive)
+  ;; 114 is round (codepoint of 'r')
+  (meow-end-of-thing 114)
+  (meow-kill)
+  (meow-insert))
 
 (defun dz/meow-yank-line ()
   (interactive)
@@ -434,6 +441,12 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (meow-mark-symbol 1)
   (meow-search -1)
   (meow-search 0))
+
+(defun dz/meow-change-line ()
+  "Kill to the end of the line and enter insert mode"
+  (interactive)
+  (meow-C-k)
+  (meow-insert))
 
 (defun meow-setup ()
   ;; free this key (opens FAQ by default) to be easier to run C-h f from meow-keypad
@@ -526,8 +539,9 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
    '("q" . meow-quit)
    '("Q" . meow-goto-line)
    '("r" . meow-replace)
-   '("R" . meow-swap-grab)
+   '("R" . dz/meow-change-till-round)
    '("s" . meow-kill)
+   '("S" . dz/meow-change-line)
    '("t" . meow-till)
    '("u" . meow-undo)
    '("U" . meow-undo-in-selection)
