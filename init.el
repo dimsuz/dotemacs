@@ -126,7 +126,7 @@ The DWIM behaviour of this command is as follows:
 
 ;; Fonts
 (if host-bitrix-mac-p
-    (set-face-attribute 'default nil :font "Jetbrains Mono" :height 160)
+    (set-face-attribute 'default nil :font "Jetbrains Mono" :height 150)
   (set-face-attribute 'default nil :font "Jetbrains Mono" :height 130))
 
 ;; Make ESC quit prompts
@@ -222,6 +222,11 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
 (add-to-list 'compilation-finish-functions 'dz/auto-close-compile-buffer)
 
+(defun dz/mark-ring-pop ()
+  "Pop the mark"
+  (interactive)
+  (set-mark-command 0))
+
 ;; Global key bindings
 (global-set-key (kbd "C-c f i") (lambda () (interactive) (find-file user-init-file)))
 (global-set-key (kbd "C-c C-f i") (lambda () (interactive) (find-file user-init-file)))
@@ -234,7 +239,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (global-set-key (kbd "C-c c") #'recompile)
 (global-set-key (kbd "C-c C-i") #'imenu)
 (global-set-key (kbd "C-c f .") (lambda () (interactive) (dired ".")))
-(global-set-key (kbd "C-c '") (lambda () (interactive) (set-mark-command 0)))
+(global-set-key (kbd "C-c '") #'dz/mark-ring-pop)
 (global-set-key (kbd "C-;") #'other-window)
 (global-set-key (kbd "C-c d") #'dz/duplicate-line)
 (global-set-key (kbd "C-x C-s") #'dz/save-some-buffers-silently)
@@ -327,7 +332,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   :commands magit-status
   :bind
   (:map global-map
-        ("C-M-g" . magit-status))
+        ("C-M-g" . magit-status-quick))
   ;; :hook
   ;; (magit-section-set-visibility . (lambda (section) 'show))
   :config
@@ -513,6 +518,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
    '("L" . meow-right-expand)
    '("m" . meow-join)
    '("n" . meow-search)
+   '("N" . dz/mark-ring-pop)
    '("o" . meow-block)
    '("O" . meow-to-block)
    '("P" . dz/meow-yank-line)
@@ -1067,6 +1073,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   :ensure nil
   :straight (:type built-in)
   :config
+  (define-key mode-specific-map "p" project-prefix-map)
   (add-to-list 'project-switch-commands '(magit-project-status "Magit" ?m)))
 
 ;; (use-package format-all
@@ -1292,3 +1299,14 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (let ((dir (file-name-directory (buffer-file-name))))
     (message dir))
   )
+
+(defun dz/magit-open-bx-gitlab-revision ()
+  (interactive)
+  (let ((revision (magit-buffer-revision)))
+    (when revision
+      (browse-url (format "http://mobile.git.bx/main/android/-/commit/%s" revision)))))
+
+(defun dz/bx-open-local-install-playground ()
+  "Open playground/component.js in BX local install folder"
+  (interactive)
+  (find-file "/Users/suzdalev/code/bitrix24/local/modules/mobile/install/mobileapp/mobile/components/bitrix/playground/component.js"))

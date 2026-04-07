@@ -3,6 +3,7 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+        abort-recursive-edit
         backward-char
         c-electric-delete-forward
         c-electric-paren
@@ -35,6 +36,7 @@
         meow-inner-of-thing
         meow-insert
         meow-insert-exit
+        meow-join
         meow-keypad
         meow-kill
         meow-left
@@ -45,6 +47,7 @@
         meow-next
         meow-next-symbol
         meow-next-word
+        meow-open-above
         meow-open-below
         meow-pop-selection
         meow-prev

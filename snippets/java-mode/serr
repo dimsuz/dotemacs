@@ -2,4 +2,4 @@
 # name: System.err.println()
 # key: serr
 # --
-System.err.println("$1");
+System.err.println("$0");
