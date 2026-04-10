@@ -849,7 +849,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   :ensure t
 
   :bind
-  (("C-'" . embark-act)
+  (([f1] . embark-act)
    ("M-." . embark-dwim)
    ("C-c M-." . dz/embark-dwim-other-window)
    ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'

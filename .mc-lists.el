@@ -7,6 +7,7 @@
         backward-char
         c-electric-delete-forward
         c-electric-paren
+        c-electric-semi&comma
         consult-yank-pop
         cycle-spacing
         dabbrev-expand
@@ -14,6 +15,7 @@
         delete-char
         dired-flag-file-deletion
         electric-newline-and-maybe-indent
+        electric-pair-delete-pair
         forward-char
         forward-symbol
         ignore
@@ -65,6 +67,7 @@
         self-insert-command
         undefined
         wdired--self-insert
+        yas-expand
         ))
 
 (setq mc/cmds-to-run-once
