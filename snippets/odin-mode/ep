@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: ep
+# key: ep
+# --
+fmt.eprintln("$1")
