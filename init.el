@@ -126,7 +126,7 @@ The DWIM behaviour of this command is as follows:
 
 ;; Fonts
 (if host-bitrix-mac-p
-    (set-face-attribute 'default nil :font "Jetbrains Mono" :height 150)
+    (set-face-attribute 'default nil :font "Jetbrains Mono" :height 160)
   (set-face-attribute 'default nil :font "Jetbrains Mono" :height 130))
 
 ;; Make ESC quit prompts
@@ -671,7 +671,15 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   :hook
   (prog-mode . dz/disable-italic-fonts)
   :config
-  (doric-themes-select 'doric-earth)
+  (doric-themes-select 'doric-almond)
+
+  (let ((default-bg "#fdf6e3")
+        (default-fg "#586e75"))
+    (set-face-attribute 'default nil :foreground default-fg :background default-bg)
+    (set-face-attribute 'font-lock-keyword-face nil :foreground "#268bd2" :weight 'semi-bold)
+    (set-face-attribute 'font-lock-variable-name-face nil :foreground default-fg :inherit 'default)
+    (set-face-attribute 'font-lock-constant-face nil :foreground default-fg :inherit 'default)
+    (set-face-attribute 'font-lock-type-face nil :foreground "#6a6098" :weight 'normal))
 
   ;; ;; To load a random theme instead, use something like one of these:
   ;;
