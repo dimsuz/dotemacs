@@ -325,6 +325,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (setq vundo-glyph-alist vundo-unicode-symbols))
 
 (global-subword-mode 1)
+(electric-pair-mode)
 
 (defvar use-evil-or-meow "meow")
 
@@ -1301,13 +1302,13 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (use-package glsl-mode
     :ensure t)
 
+(use-package php-mode
+  :ensure t)
+
 (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
 (use-package dumb-jump
   :ensure t
   )
-
-(use-package php-mode
-  :ensure t)
 
 (add-hook 'whitespace-mode-hook
           (lambda ()
