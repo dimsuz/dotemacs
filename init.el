@@ -126,7 +126,7 @@ The DWIM behaviour of this command is as follows:
 
 ;; Fonts
 (if host-bitrix-mac-p
-    (set-face-attribute 'default nil :font "Jetbrains Mono" :height 160)
+    (set-face-attribute 'default nil :font "Jetbrains Mono" :height 150)
   (set-face-attribute 'default nil :font "Jetbrains Mono" :height 130))
 
 ;; Make ESC quit prompts
@@ -327,6 +327,11 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (global-subword-mode 1)
 (electric-pair-mode)
 
+(use-package expreg
+  :ensure t
+  ;; key binding is currently configured as part of meow-setup
+  )
+
 (defvar use-evil-or-meow "meow")
 
 (use-package magit
@@ -449,6 +454,15 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (meow-C-k)
   (meow-insert))
 
+(defun dz/meow-surround-curly ()
+  "Surround the word under point or selected region with curly braces"
+  (interactive)
+  (if (use-region-p)
+      (self-insert-command 1 123)
+    (save-excursion
+      (meow-mark-thing meow-symbol-thing 'symbol nil)
+      (self-insert-command 1 123))))
+
 (defun meow-setup ()
   ;; free this key (opens FAQ by default) to be easier to run C-h f from meow-keypad
   (global-unset-key (kbd "C-h C-f"))
@@ -460,6 +474,10 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (setq meow-keypad-leader-dispatch "C-c")
   (add-hook 'meow-insert-exit-hook #'dz/switch-back-to-us-keyboard-layout)
   (add-hook 'meow-insert-enter-hook #'dz/maybe-switch-to-ru-keyboard-layout)
+  (add-hook 'meow-insert-exit-hook
+          (lambda ()
+            (when multiple-cursors-mode
+              (multiple-cursors-mode -1))))
 
   (meow-motion-overwrite-define-key
    '("j" . meow-next)
@@ -533,7 +551,8 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
    '("m" . meow-join)
    '("n" . meow-search)
    '("N" . dz/mark-ring-pop)
-   '("o" . meow-block)
+   '("o" . expreg-expand)
+   '("M-o" . expreg-contract)
    '("O" . meow-to-block)
    '("P" . dz/meow-yank-line)
    '("p" . meow-yank)
@@ -562,6 +581,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
    '("=" . dz/meow-indent-curly)
    '("*" . dz/meow-search-forward-word-at-point)
    '("#" . dz/meow-search-backward-word-at-point)
+   '("{" . dz/meow-surround-curly)
    ))
 
 (use-package meow
@@ -607,6 +627,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   :straight nil
   :load-path "plugins/yasnippet"
   :config
+  (setq yas-wrap-around-region t)
   (yas-global-mode 1))
 
 (use-package wgrep
@@ -675,12 +696,13 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (doric-themes-select 'doric-almond)
 
   (let ((default-bg "#fdf6e3")
-        (default-fg "#586e75"))
+        (default-fg "#495b61"))
     (set-face-attribute 'default nil :foreground default-fg :background default-bg)
     (set-face-attribute 'font-lock-keyword-face nil :foreground "#268bd2" :weight 'semi-bold)
     (set-face-attribute 'font-lock-variable-name-face nil :foreground default-fg :inherit 'default)
     (set-face-attribute 'font-lock-constant-face nil :foreground default-fg :inherit 'default)
     (set-face-attribute 'font-lock-type-face nil :foreground "#6a6098" :weight 'normal))
+    (set-face-attribute 'font-lock-comment-face nil :foreground "#718f99" :weight 'normal)
 
   ;; ;; To load a random theme instead, use something like one of these:
   ;;
