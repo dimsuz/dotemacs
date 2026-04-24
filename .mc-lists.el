@@ -73,6 +73,7 @@
 (setq mc/cmds-to-run-once
       '(
         avy-goto-word-1
+        dz/kill-whitespace-or-word-backward
         dz/meow-search-backward-word-at-point
         mc/toggle-cursor-on-click
         meow-grab

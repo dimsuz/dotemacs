@@ -239,7 +239,8 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (global-set-key (kbd "C-c c") #'recompile)
 (global-set-key (kbd "C-c C-i") #'imenu)
 (global-set-key (kbd "C-c f .") (lambda () (interactive) (dired ".")))
-(global-set-key (kbd "C-c '") #'dz/mark-ring-pop)
+(global-set-key (kbd "C-c f b j") #'bookmark-jump)
+(global-set-key (kbd "C-c f b s") #'bookmark-set)
 (global-set-key (kbd "C-;") #'other-window)
 (global-set-key (kbd "C-c d") #'dz/duplicate-line)
 (global-set-key (kbd "C-x C-s") #'dz/save-some-buffers-silently)
@@ -457,11 +458,30 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (defun dz/meow-surround-curly ()
   "Surround the word under point or selected region with curly braces"
   (interactive)
-  (if (use-region-p)
-      (self-insert-command 1 123)
+  (unless (use-region-p)
+    (message "No active region"))
+  (let* ((beg (region-beginning))
+         (end (region-end)))
     (save-excursion
-      (meow-mark-thing meow-symbol-thing 'symbol nil)
-      (self-insert-command 1 123))))
+      (goto-char beg)
+      (beginning-of-line)
+      (setq brace-marker (point))
+      (insert "{\n")
+      (setq end (+ end 2))
+
+      (goto-char end)
+      (end-of-line)
+      (insert "\n}")
+
+      (indent-region
+       (save-excursion
+         (goto-char beg)
+         (beginning-of-line)
+         (point))
+       (point))
+      )
+    (goto-char brace-marker)
+    (back-to-indentation)))
 
 (defun meow-setup ()
   ;; free this key (opens FAQ by default) to be easier to run C-h f from meow-keypad
@@ -472,11 +492,11 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (setq meow-use-clipboard 't)
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
   (setq meow-keypad-leader-dispatch "C-c")
-  (add-hook 'meow-insert-exit-hook #'dz/switch-back-to-us-keyboard-layout)
-  (add-hook 'meow-insert-enter-hook #'dz/maybe-switch-to-ru-keyboard-layout)
+  ;; (add-hook 'meow-insert-exit-hook #'dz/switch-back-to-us-keyboard-layout)
+  ;; (add-hook 'meow-insert-enter-hook #'dz/maybe-switch-to-ru-keyboard-layout)
   (add-hook 'meow-insert-exit-hook
           (lambda ()
-            (when multiple-cursors-mode
+            (when (and (boundp 'multiple-cursors-mode) multiple-cursors-mode)
               (multiple-cursors-mode -1))))
 
   (meow-motion-overwrite-define-key
@@ -1327,10 +1347,21 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (use-package php-mode
   :ensure t)
 
+(use-package gptel
+  :ensure t)
+
 (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
 (use-package dumb-jump
   :ensure t
   )
+
+(use-package super-save
+  :ensure t
+  :config
+  (setq super-save-all-buffers t)
+  (setq super-save-auto-save-when-idle t)
+  (setq auto-save-default nil)
+  (super-save-mode 1))
 
 (add-hook 'whitespace-mode-hook
           (lambda ()
@@ -1355,3 +1386,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   "Open playground/component.js in BX local install folder"
   (interactive)
   (find-file "/Users/suzdalev/code/bitrix24/local/modules/mobile/install/mobileapp/mobile/components/bitrix/playground/component.js"))
+
+(defalias 'dz/slurp-statement
+   (kmacro "C-n C-a C-k C-k C-p C-e C-b <return> C-y <backspace> <tab>"))
+(define-key prog-mode-map (kbd "M-RET") 'dz/slurp-statement)

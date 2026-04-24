@@ -366,10 +366,12 @@ This function is heavily inspired by `js--fontify-template-string'."
      ((parent-is "try_expression") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "value_arguments") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "when_expression") parent-bol kotlin-ts-mode-indent-offset)
+     ((parent-is "when_entry") parent-bol kotlin-ts-mode-indent-offset)
+     ((parent-is "class_body") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "comment") parent-bol 1)
      ((node-is "navigation_suffix") parent-bol kotlin-ts-mode-indent-offset)
      ((node-is "getter") parent-bol kotlin-ts-mode-indent-offset)
-     (catch-all prev-sibling 0))))
+     (catch-all parent-bol 0))))
 
 ;; Imenu
 
