@@ -492,6 +492,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (setq meow-use-clipboard 't)
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
   (setq meow-keypad-leader-dispatch "C-c")
+  ;; Выключил, как будто всё равно не пользуюсь
   ;; (add-hook 'meow-insert-exit-hook #'dz/switch-back-to-us-keyboard-layout)
   ;; (add-hook 'meow-insert-enter-hook #'dz/maybe-switch-to-ru-keyboard-layout)
   (add-hook 'meow-insert-exit-hook
