@@ -1388,6 +1388,10 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (interactive)
   (find-file "/Users/suzdalev/code/bitrix24/local/modules/mobile/install/mobileapp/mobile/components/bitrix/playground/component.js"))
 
-(defalias 'dz/slurp-statement
-   (kmacro "C-n C-a C-k C-k C-p C-e C-b <return> C-y <backspace> <tab>"))
+(defun dz/slurp-statement ()
+  (interactive)
+  (with-undo-amalgamate
+    (if (and (eq (char-before) ?{) (eq (char-after) ?}))
+        (execute-kbd-macro (kbd "C-n C-a C-k C-k C-p C-e C-b <return> C-y <backspace> <tab>"))
+      (execute-kbd-macro (kbd "C-s } C-n M-m C-a 2*C-k C-p C-e C-a C-s } C-b <return> C-p C-y <backspace> <tab>")))))
 (define-key prog-mode-map (kbd "M-RET") 'dz/slurp-statement)
