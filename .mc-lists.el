@@ -5,6 +5,7 @@
       '(
         abort-recursive-edit
         backward-char
+        backward-sexp
         c-electric-delete-forward
         c-electric-paren
         c-electric-semi&comma
@@ -13,10 +14,12 @@
         dabbrev-expand
         default-indent-new-line
         delete-char
+        delete-horizontal-space
         dired-flag-file-deletion
         electric-newline-and-maybe-indent
         electric-pair-delete-pair
         forward-char
+        forward-sexp
         forward-symbol
         ignore
         indent-for-tab-command
