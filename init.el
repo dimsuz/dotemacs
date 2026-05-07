@@ -240,7 +240,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (global-set-key (kbd "C-c C-i") #'imenu)
 (global-set-key (kbd "C-c f .") (lambda () (interactive) (dired ".")))
 (global-set-key (kbd "C-c f b j") #'bookmark-jump)
-(global-set-key (kbd "C-c f b s") #'bookmark-set)
+(global-set-key (kbd "C-c f b c") #'bookmark-set)
 (global-set-key (kbd "C-;") #'other-window)
 (global-set-key (kbd "C-c d") #'dz/duplicate-line)
 (global-set-key (kbd "C-x C-s") #'dz/save-some-buffers-silently)
@@ -1161,7 +1161,12 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   :ensure nil ; it is built-in
   :straight (:type built-in)
   :config
-  (add-to-list 'treesit-language-source-alist '(kotlin . ("https://github.com/fwcd/tree-sitter-kotlin")))
+  (add-to-list 'treesit-language-source-alist
+               '(kotlin . ("https://github.com/fwcd/tree-sitter-kotlin")))
+  (add-to-list 'treesit-language-source-alist
+               '(typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")))
+  (add-to-list 'treesit-language-source-alist
+               '(tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")))
   )
 
 ;; This is a copy of the same function from the js.el with fixed
@@ -1296,6 +1301,14 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
         ("C-c sf" . dz/consult-ripgrep-kotlin-fun)
         ("C-c ji" . dz/kotlin-move-to-last-import)
         ))
+
+(use-package typescript-ts-mode
+  :straight nil
+  :mode "\\.ts\\'")
+
+(use-package tsx-ts-mode
+  :straight nil
+  :mode "\\.tsx\\'")
 
 (use-package go-mode
   :straight nil

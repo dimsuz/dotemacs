@@ -16,6 +16,7 @@
         delete-char
         delete-horizontal-space
         dired-flag-file-deletion
+        dz/slurp-statement
         electric-newline-and-maybe-indent
         electric-pair-delete-pair
         forward-char
