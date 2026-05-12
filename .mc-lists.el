@@ -20,6 +20,7 @@
         electric-newline-and-maybe-indent
         electric-pair-delete-pair
         forward-char
+        forward-sentence
         forward-sexp
         forward-symbol
         ignore
@@ -64,11 +65,13 @@
         meow-till
         meow-undo
         meow-yank
+        mouse-wheel-text-scale
         next-line
         org-self-insert-command
         previous-line
         repeat
         self-insert-command
+        text-scale-set
         undefined
         wdired--self-insert
         yas-expand
