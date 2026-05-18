@@ -42,6 +42,7 @@
 (set-fringe-mode 10)
 (save-place-mode 1)
 (winner-mode 1)
+(global-display-fill-column-indicator-mode 1)
 
 (setq custom-file (locate-user-emacs-file "custom.el"))
 (load custom-file :no-error-if-file-is-missing)
@@ -62,6 +63,7 @@
 (setq-default indent-tabs-mode nil)
 (setq-default dabbrev-case-fold-search nil)
 (setq-default fill-column 120)
+(setq-default show-paren-context-when-offscreen 'overlay)
 
 ;; Delete the selected text upon text insertion
 (use-package delsel
@@ -335,11 +337,16 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
 (defvar use-evil-or-meow "meow")
 
+(defun dz/magit-commit-mode-setup ()
+  (setq-local fill-column 80))
+
 (use-package magit
   :commands magit-status
   :bind
   (:map global-map
-        ("C-M-g" . magit-status-quick))
+        ("C-M-g" . magit-status))
+  :hook
+  (git-commit-mode . dz/magit-commit-mode-setup)
   ;; :hook
   ;; (magit-section-set-visibility . (lambda (section) 'show))
   :config
@@ -609,6 +616,13 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   :ensure t
   :if (string-equal use-evil-or-meow "meow")
   :straight (:host github :repo "meow-edit/meow" :branch "master")
+  :hook
+  (calc-mode . (lambda ()
+                 (meow-motion-overwrite-define-key
+                  '("*" . calc-times))
+                 (meow-normal-define-key
+                  '("*" . calc-times))
+                 ))
   :config
   (meow-setup)
   (meow-global-mode 1))
@@ -722,8 +736,8 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
     (set-face-attribute 'font-lock-keyword-face nil :foreground "#268bd2" :weight 'semi-bold)
     (set-face-attribute 'font-lock-variable-name-face nil :foreground default-fg :inherit 'default)
     (set-face-attribute 'font-lock-constant-face nil :foreground default-fg :inherit 'default)
-    (set-face-attribute 'font-lock-type-face nil :foreground "#6a6098" :weight 'normal))
-    (set-face-attribute 'font-lock-comment-face nil :foreground "#718f99" :weight 'normal)
+    (set-face-attribute 'font-lock-type-face nil :foreground "#6a6098" :weight 'normal)
+    (set-face-attribute 'font-lock-comment-face nil :foreground "#718f99" :weight 'normal))
 
   ;; ;; To load a random theme instead, use something like one of these:
   ;;
@@ -950,7 +964,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (defun dz/consult-ripgrep ()
   (interactive)
   (if (use-region-p)
-    (consult-ripgrep nil (buffer-substring-no-properties (region-beginning) (region-end)))
+      (consult-ripgrep nil (buffer-substring-no-properties (region-beginning) (region-end)))
     (consult-ripgrep)))
 
 (defun dz/consult-ripgrep-kotlin-class ()

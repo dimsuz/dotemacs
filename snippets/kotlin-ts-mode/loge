@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: Log error
+# key: loge
+# --
+Log.e("ds", String.format("$0"))

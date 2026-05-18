@@ -2,4 +2,4 @@
 # name: Timber error
 # key: tie
 # --
-Timber.e("$1")
+Timber.e("$0")
