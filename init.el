@@ -247,6 +247,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (global-set-key (kbd "C-c d") #'dz/duplicate-line)
 (global-set-key (kbd "C-x C-s") #'dz/save-some-buffers-silently)
 (global-set-key (kbd "M-DEL") #'dz/kill-whitespace-or-word-backward)
+(global-set-key (kbd "<f2>") #'next-error)
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-x C-z"))
 
@@ -328,7 +329,12 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (setq vundo-glyph-alist vundo-unicode-symbols))
 
 (global-subword-mode 1)
+
 (electric-pair-mode)
+(setq electric-pair-inhibit-predicate
+      (lambda (c)
+        (or (eq (char-syntax (following-char)) ?w)
+            (electric-pair-default-inhibit c))))
 
 (use-package expreg
   :ensure t
