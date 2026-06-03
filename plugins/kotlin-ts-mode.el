@@ -348,6 +348,14 @@ This function is heavily inspired by `js--fontify-template-string'."
        (simple_identifier) @font-lock-variable-name-face
        (interpolated_identifier) @font-lock-variable-name-face))))
 
+(defun dz/great-grand-parent-bol (_n parent &rest _)
+  (save-excursion
+    (goto-char (treesit-node-start
+                 (treesit-node-parent
+                  (treesit-node-parent parent))))
+    (back-to-indentation)
+    (point)))
+
 (defconst kotlin-ts-mode--treesit-indent-rules
   '((kotlin
      ((node-is "}") parent-bol 0)
@@ -365,13 +373,23 @@ This function is heavily inspired by `js--fontify-template-string'."
      ((parent-is "secondary_constructor") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "try_expression") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "value_arguments") parent-bol kotlin-ts-mode-indent-offset)
+     ((n-p-gp nil "string_literal" "value_argument") dz/great-grand-parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "when_expression") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "when_entry") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "class_body") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "comment") parent-bol 1)
      ((node-is "navigation_suffix") parent-bol kotlin-ts-mode-indent-offset)
      ((node-is "getter") parent-bol kotlin-ts-mode-indent-offset)
-     (catch-all parent-bol 0))))
+     (catch-all parent-bol 0)
+     ;; USE THIS FOR DEBUGGING CATCH-ALL, also use (setq treesit--indent-verbose 't):
+     ;; ((lambda (node parent &rest _)
+     ;;    (message "[Debug] Node: %s | Parent: %s | Grand-Parent: %s"
+     ;;             (treesit-node-type node)
+     ;;             (treesit-node-type parent)
+     ;;             (treesit-node-type (treesit-node-parent parent)))
+     ;;    t) ; Return t so this rule always matches (acting as a catch-all)
+     ;;  parent-bol 0)
+     )))
 
 ;; Imenu
 

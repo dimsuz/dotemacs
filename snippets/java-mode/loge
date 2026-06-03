@@ -2,4 +2,4 @@
 # name: Log error
 # key: loge
 # --
-Log.e("ds", "$0")
+Log.e("ds", String.format("$0"))
