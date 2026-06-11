@@ -1,5 +1,6 @@
 # -*- mode: snippet -*-
 # name: Log error
 # key: loge
+# expand-env: ((yas-after-exit-snippet-hook #'dz/android-add-log-import))
 # --
 Log.e("ds", "$0")

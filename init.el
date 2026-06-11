@@ -349,6 +349,8 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (use-package magit
   :commands magit-status
   :bind
+  (:map magit-status-mode-map
+        ("C-c C-c" . nil))
   (:map global-map
         ("C-M-g" . magit-status))
   :hook
@@ -1093,11 +1095,20 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
 (use-package corfu
   :ensure t
-  :hook (after-init . global-corfu-mode)
-  :bind (:map corfu-map ("<tab>" . corfu-complete))
+  ;; disabled for now, until emacs 31 will be available on MacOS, otherwise an error
+  ;; :hook (after-init . global-corfu-mode)
+  :bind
+  (:map corfu-map
+        ("<tab>" . corfu-next)
+        ("[tab]" . corfu-next)
+        ("S-TAB" . corfu-previous)
+        )
+  :custom
+  (corfu-cycle t)
+  (corfu-preselect 'prompt)
   :config
   (setq tab-always-indent 'complete)
-  (setq corfu-preview-current nil)
+  (setq corfu-preview-current t)
   (setq corfu-min-width 20)
 
   (setq corfu-popupinfo-delay '(1.25 . 0.5))
@@ -1107,6 +1118,28 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (with-eval-after-load 'savehist
     (corfu-history-mode 1)
     (add-to-list 'savehist-additional-variables 'corfu-history)))
+
+(use-package cape
+  ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
+  ;; Press C-c p ? to for help.
+  :bind ("M-p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
+  ;; Alternatively bind Cape commands individually.
+  ;; :bind (("C-c p d" . cape-dabbrev)
+  ;;        ("C-c p h" . cape-history)
+  ;;        ("C-c p f" . cape-file)
+  ;;        ...)
+  :init
+  ;; Add to the global default value of `completion-at-point-functions' which is
+  ;; used by `completion-at-point'.  The order of the functions matters, the
+  ;; first function returning a result wins.  Note that the list of buffer-local
+  ;; completion functions takes precedence over the global list.
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-emoji)
+  (add-hook 'completion-at-point-functions #'cape-keyword)
+  (add-hook 'completion-at-point-functions #'cape-history)
+  ;; ...
+)
 
 (use-package dired
   :ensure nil
