@@ -283,6 +283,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 )
 
 (use-package cc-mode
+  :ensure nil
   :bind
   (:map c-mode-map
         ("C-c C-c" . nil)
@@ -351,6 +352,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (setq-local fill-column 80))
 
 (use-package magit
+  :ensure t
   :commands magit-status
   :bind
   (:map magit-status-mode-map
@@ -587,6 +589,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (meow-global-mode 1))
 
 (use-package yasnippet
+  :ensure nil
   :straight nil
   :load-path "plugins/yasnippet"
   :config
@@ -594,6 +597,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (yas-global-mode 1))
 
 (use-package wgrep
+  :ensure nil
   :straight nil
   :load-path "plugins"
   :config
@@ -682,12 +686,14 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
 ;; Delimeters
 (use-package rainbow-delimiters
+  :ensure t
   :hook (prog-mode . rainbow-delimiters-mode))
 
 ;;
 ;; Helpful
 ;;
 (use-package helpful
+  :ensure t
   :commands (helpful-callable helpful-variable helpful-command helpful-key)
   :bind
   ([remap describe-function] . helpful-callable)
@@ -734,6 +740,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (visual-line-mode 1))
 
 (use-package org
+  :ensure t
   :straight (org :host github
                  :repo "emacs-straight/org-mode"
                  :local-repo "org"
@@ -768,6 +775,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   )
 
 (use-package org-bullets
+  :ensure t
   :hook (org-mode . org-bullets-mode)
   :custom
   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
@@ -825,6 +833,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 ;; Vertico
 ;;
 (use-package vertico
+  :ensure t
   :init
   :hook
   (after-init . vertico-mode)
@@ -1040,6 +1049,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
     (add-to-list 'savehist-additional-variables 'corfu-history)))
 
 (use-package cape
+  :ensure t
   ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
   ;; Press C-c p ? to for help.
   :bind ("M-p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
@@ -1120,11 +1130,13 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 ;; 	 (prog-mode . format-all-mode)))
 
 (use-package git-gutter
+  :ensure t
   :hook (prog-mode . git-gutter-mode)
   :config
   (setq git-gutter:update-interval 0.5))
 
 (use-package git-gutter-fringe
+  :ensure t
   :config
   (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
   (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
@@ -1265,6 +1277,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (search-backward "import " nil t))
 
 (use-package kotlin-ts-mode
+  :ensure nil
   :straight nil
   :load-path "plugins"
   :mode "\\.kt\\'" ; if you want this mode to be auto-enabled
@@ -1276,30 +1289,36 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
         ))
 
 (use-package typescript-ts-mode
+  :ensure nil
   :straight nil
   :mode "\\.ts\\'")
 
 (use-package tsx-ts-mode
+  :ensure nil
   :straight nil
   :mode "\\.tsx\\'")
 
 (use-package go-mode
+  :ensure nil
   :straight nil
   :load-path "plugins"
   :mode "\\.go\\'"
   )
 
 (use-package posframe
+  :ensure nil
   :straight nil
   :load-path "plugins"
   )
 
 (use-package ws-butler
+  :ensure nil
   :straight nil
   :load-path "plugins"
   :hook (prog-mode . ws-butler-mode))
 
 (use-package nxml-mode
+  :ensure nil
   :straight nil
   :custom
   (setq nxml-child-indent 4)
