@@ -139,8 +139,8 @@ The DWIM behaviour of this command is as follows:
   (if (and current-prefix-arg
            (< (prefix-numeric-value current-prefix-arg) 0))
       (save-selected-window
-        (switch-to-buffer-other-window (other-buffer)))
-    (switch-to-buffer (other-buffer))))
+        (switch-to-buffer-other-window (other-buffer (current-buffer) t)))
+    (switch-to-buffer (other-buffer (current-buffer) t))))
 
 (defun dz/yank-buffer-path (&optional root)
   "Copy the current buffer's path to the kill ring."
@@ -248,6 +248,12 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (global-set-key (kbd "C-x C-s") #'dz/save-some-buffers-silently)
 (global-set-key (kbd "M-DEL") #'dz/kill-whitespace-or-word-backward)
 (global-set-key (kbd "<f2>") #'next-error)
+(global-set-key (kbd "C-c t 1") (lambda () (interactive) (tab-bar-select-tab 1)))
+(global-set-key (kbd "C-c t 2") (lambda () (interactive) (tab-bar-select-tab 2)))
+(global-set-key (kbd "C-c t 3") (lambda () (interactive) (tab-bar-select-tab 3)))
+(global-set-key (kbd "C-c t 4") (lambda () (interactive) (tab-bar-select-tab 4)))
+(global-set-key (kbd "C-c t 5") (lambda () (interactive) (tab-bar-select-tab 5)))
+(global-set-key (kbd "C-c t `") #'tab-previous)
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-x C-z"))
 
@@ -341,8 +347,6 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   ;; key binding is currently configured as part of meow-setup
   )
 
-(defvar use-evil-or-meow "meow")
-
 (defun dz/magit-commit-mode-setup ()
   (setq-local fill-column 80))
 
@@ -358,62 +362,10 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   ;; :hook
   ;; (magit-section-set-visibility . (lambda (section) 'show))
   :config
-  (if (string-equal use-evil-or-meow "evil")
-      (add-hook 'magit-status-mode-hook (lambda () (god-local-mode -1))))
   (setq magit-list-refs-sortby '("-creatordate"))
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
   (magit-log-margin '(t "%Y-%m-%d %H:%M " magit-log-margin-width t 18)))
-
-;;
-;; Keybindings
-;;
-(if (string-equal use-evil-or-meow "evil")
-    (progn (use-package general
-	     :after evil
-	     :config
-	     (general-create-definer dz/leader-keys
-	       :keymaps '(normal emacs)
-	       :prefix "SPC"
-	       )
-	     (dz/leader-keys
-	      "t"  '(:ignore t :which-key "toggles")
-	      "tt" '(counsel-load-theme :which-key "choose theme")
-	      "b"  '(:ignore t :which-key "buffers")
-	      "bk" '(kill-current-buffer :which-key "kill buffer")
-	      "," '(switch-to-buffer :which-key "switch buffer")
-	      )
-	     (general-define-key
-	      :prefix "SPC"
-	      :states 'normal
-	      :keymaps 'override
-	      "p" '(:keymap projectile-command-map :package projectile :which-key "projectile prefix")
-	      ))
-	   (use-package evil
-	     :init
-	     (setq evil-want-integration t)
-	     (setq evil-want-keybinding nil)
-	     (setq evil-want-C-u-scroll t)
-	     (setq evil-want-C-d-scroll t)
-	     (setq evil-want-C-i-jump nil)
-	     :config
-	     (evil-mode 1)
-	     (evil-set-undo-system 'undo-tree)
-	     (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-	     (define-key evil-normal-state-map (kbd "C-e") 'evil-end-of-line)
-	     (define-key evil-insert-state-map (kbd "C-e") 'end-of-line)
-	     ;; Use visual line motions even outside of visual-line-mode buffers
-	     (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-	     (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
-
-	     (evil-set-initial-state 'messages-buffer-mode 'normal)
-	     (evil-set-initial-state 'dashboard-mode 'normal))
-
-	   (use-package evil-collection
-	     :after evil
-	     :config
-	     (evil-collection-init))
-	   ))
 
 ;;
 ;; Meow mode
@@ -622,7 +574,6 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
 (use-package meow
   :ensure t
-  :if (string-equal use-evil-or-meow "meow")
   :straight (:host github :repo "meow-edit/meow" :branch "master")
   :hook
   (calc-mode . (lambda ()
@@ -634,37 +585,6 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   :config
   (meow-setup)
   (meow-global-mode 1))
-
-(defun dz/god-mode-update-cursor-type ()
-  (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
-
-(use-package boon
-  :ensure t
-  :if (string-equal use-evil-or-meow "boon")
-  :config
-  (require 'boon-qwerty)
-  (boon-mode))
-
-(use-package god-mode
-  :ensure t
-  :if (string-equal use-evil-or-meow "god-mode")
-  :config
-  (global-set-key (kbd "<escape>") #'god-mode-all)
-  (define-key god-local-mode-map (kbd "i") #'god-local-mode)
-  ;; (global-set-key (kbd "<escape>") #'(lambda () (interactive) (god-local-mode 1)))
-  (setq god-exempt-major-modes nil)
-  (setq god-exempt-predicates nil)
-  (define-key god-local-mode-map (kbd ".") #'repeat)
-  (global-set-key (kbd "C-x C-1") #'delete-other-windows)
-  (global-set-key (kbd "C-x C-2") #'split-window-right)
-  (global-set-key (kbd "C-x C-3") #'split-window-below)
-  (global-set-key (kbd "C-x C-0") #'delete-window)
-  ;; using ace-window instead
-  ;; (global-set-key (kbd "C-x C-o") #'other-window)
-  (define-key god-local-mode-map (kbd "[") #'backward-paragraph)
-  (define-key god-local-mode-map (kbd "]") #'forward-paragraph)
-  (add-hook 'god-mode-enabled-hook #'dz/god-mode-update-cursor-type)
-  (add-hook 'god-mode-disabled-hook #'dz/god-mode-update-cursor-type))
 
 (use-package yasnippet
   :straight nil
@@ -1406,7 +1326,10 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
    ))
 
 (use-package markdown-mode
-  :ensure t)
+  :ensure t
+  :config
+  (setq markdown-command "/opt/homebrew/bin/cmark-gfm -e footnotes -e table -e strikethrough -e autolink -e tagfilter -e tasklist")
+  )
 
 (use-package glsl-mode
     :ensure t)
@@ -1461,3 +1384,33 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
         (execute-kbd-macro (kbd "C-n C-a C-k C-k C-p C-e C-b <return> C-y <backspace> <tab>"))
       (execute-kbd-macro (kbd "C-s } C-n M-m C-a 2*C-k C-p C-e C-a C-s } C-b <return> C-p C-y <backspace> <tab>")))))
 (define-key prog-mode-map (kbd "M-RET") 'dz/slurp-statement)
+
+(defun dz/android-add-log-import ()
+  "Insert 'import android.util.Log' into a Kotlin file if not already present."
+  (interactive)
+  (save-excursion
+    (let ((log-import "import android.util.Log"))
+      (goto-char (point-min))
+      (if (search-forward log-import nil t)
+          (message "Уже здесь-с. Как и я в чужой спальне.")
+        (goto-char (point-max))
+        (cond
+         ((re-search-backward "^import \\(android\\|androidx\\)\\." nil t)
+          (end-of-line)
+          (insert "\n" log-import))
+
+         ((re-search-backward "^import " nil t)
+          (end-of-line)
+          (insert "\n" log-import))
+
+         ((progn
+            (goto-char (point-min))
+            (re-search-forward "^package " nil t))
+          (end-of-line)
+          (insert "\n\n" log-import))
+
+         (t
+          (goto-char (point-min))
+          (insert log-import "\n")))
+
+        (message "Вставил-с. Не впервой.")))))
