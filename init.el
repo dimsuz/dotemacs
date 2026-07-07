@@ -6,33 +6,48 @@
 ;; Package management
 ;;
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-(setq straight-use-package-by-default t
-      straight-repository-branch "master"
-      ;; single file for caching autoloads
-      straight-cache-autoloads t
-      ;; NOTE: requires python3 and watchexec
-      ;; straight-check-for-modifications '(watch-files find-when-checking)
-      ;; NOTE: requires no watchexec
-      straight-find-executable "fd"
-      straight-check-for-modifications '(check-on-save find-when-checking)
-      )
+(defvar elpaca-installer-version 0.12)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-sources-directory (expand-file-name "sources/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil :depth 1 :inherit ignore
+                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                              :build (:not elpaca-activate)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-sources-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (when (<= emacs-major-version 28) (require 'subr-x))
+    (condition-case-unless-debug err
+        (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                  ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                  ,@(when-let* ((depth (plist-get order :depth)))
+                                                      (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                  ,(plist-get order :repo) ,repo))))
+                  ((zerop (call-process "git" nil buffer t "checkout"
+                                        (or (plist-get order :ref) "--"))))
+                  (emacs (concat invocation-directory invocation-name))
+                  ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                        "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                  ((require 'elpaca))
+                  ((elpaca-generate-autoloads "elpaca" repo)))
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
 
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name
-        "straight/repos/straight.el/bootstrap.el"
-        (or (bound-and-true-p straight-base-dir)
-            user-emacs-directory)))
-      (bootstrap-version 7))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-(straight-use-package 'use-package)
+(elpaca elpaca-use-package
+  ;; Enable use-package :ensure support for Elpaca.
+  (elpaca-use-package-mode))
 
 (setq inhibit-startup-message t)
 (scroll-bar-mode -1)
@@ -68,8 +83,7 @@
 ;; Delete the selected text upon text insertion
 (use-package delsel
   :ensure nil ; no need to install it as it is built-in
-  :straight (:type built-in)
-  :hook (after-init . delete-selection-mode))
+  :hook (elpaca-after-init . delete-selection-mode))
 
 (defun prot/keyboard-quit-dwim ()
   "Do-What-I-Mean behaviour for a general `keyboard-quit'.
@@ -351,6 +365,9 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (defun dz/magit-commit-mode-setup ()
   (setq-local fill-column 80))
 
+(use-package transient
+  :ensure t)
+
 (use-package magit
   :ensure t
   :commands magit-status
@@ -575,8 +592,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
    ))
 
 (use-package meow
-  :ensure t
-  :straight (:host github :repo "meow-edit/meow" :branch "master")
+  :ensure (:host github :repo "meow-edit/meow" :branch "master")
   :hook
   (calc-mode . (lambda ()
                  (meow-motion-overwrite-define-key
@@ -590,7 +606,6 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
 (use-package yasnippet
   :ensure nil
-  :straight nil
   :load-path "plugins/yasnippet"
   :config
   (setq yas-wrap-around-region t)
@@ -598,7 +613,6 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
 (use-package wgrep
   :ensure nil
-  :straight nil
   :load-path "plugins"
   :config
   (setq wgrep-enable-key "r"))
@@ -740,11 +754,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (visual-line-mode 1))
 
 (use-package org
-  :ensure t
-  :straight (org :host github
-                 :repo "emacs-straight/org-mode"
-                 :local-repo "org"
-                 :depth 1)
+  :ensure nil
   :commands (org-capture org-agenda)
   :hook (org-mode . dz/org-mode-setup)
   :bind
@@ -836,12 +846,12 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   :ensure t
   :init
   :hook
-  (after-init . vertico-mode)
+  (elpaca-after-init . vertico-mode)
   (minibuffer-setup . vertico-repeat-save))
 
 (use-package marginalia
   :ensure t
-  :hook (after-init . marginalia-mode))
+  :hook (elpaca-after-init . marginalia-mode))
 
 (defun dz/embark-dwim-other-window ()
   (interactive)
@@ -1019,13 +1029,12 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
 (use-package savehist
   :ensure nil ; it is built-in
-  :straight (:type built-in)
-  :hook (after-init . savehist-mode))
+  :hook (elpaca-after-init . savehist-mode))
 
 (use-package corfu
   :ensure t
   ;; disabled for now, until emacs 31 will be available on MacOS, otherwise an error
-  ;; :hook (after-init . global-corfu-mode)
+  ;; :hook (elpaca-after-init . global-corfu-mode)
   :bind
   (:map corfu-map
         ("<tab>" . corfu-next)
@@ -1073,7 +1082,6 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
 (use-package dired
   :ensure nil
-  :straight (:type built-in)
   :commands (dired)
   :hook
   ((dired-mode . dired-hide-details-mode)
@@ -1120,7 +1128,6 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
 (use-package project
   :ensure nil
-  :straight (:type built-in)
   :config
   (define-key mode-specific-map "p" project-prefix-map)
   (add-to-list 'project-switch-commands '(magit-project-status "Magit" ?m)))
@@ -1144,7 +1151,6 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
 (use-package treesit
   :ensure nil ; it is built-in
-  :straight (:type built-in)
   :config
   (add-to-list 'treesit-language-source-alist
                '(kotlin . ("https://github.com/fwcd/tree-sitter-kotlin")))
@@ -1248,8 +1254,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
           (t (prog-first-column)))))
 
 (use-package odin-mode
-  :ensure t
-  :straight (:host github :repo "mattt-b/odin-mode")
+  :ensure (:host github :repo "mattt-b/odin-mode")
   :config
   (setq indent-tabs-mode nil)
   (setq js-indent-level 2)
@@ -1278,7 +1283,6 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
 (use-package kotlin-ts-mode
   :ensure nil
-  :straight nil
   :load-path "plugins"
   :mode "\\.kt\\'" ; if you want this mode to be auto-enabled
   :bind
@@ -1290,36 +1294,30 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
 (use-package typescript-ts-mode
   :ensure nil
-  :straight nil
   :mode "\\.ts\\'")
 
 (use-package tsx-ts-mode
   :ensure nil
-  :straight nil
   :mode "\\.tsx\\'")
 
 (use-package go-mode
   :ensure nil
-  :straight nil
   :load-path "plugins"
   :mode "\\.go\\'"
   )
 
 (use-package posframe
   :ensure nil
-  :straight nil
   :load-path "plugins"
   )
 
 (use-package ws-butler
   :ensure nil
-  :straight nil
   :load-path "plugins"
   :hook (prog-mode . ws-butler-mode))
 
 (use-package nxml-mode
   :ensure nil
-  :straight nil
   :custom
   (setq nxml-child-indent 4)
   (setq nxml-attribute-indent 4)
@@ -1328,7 +1326,6 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
 (use-package hideshow
   :ensure nil ; it is built-in
-  :straight (:type built-in)
   :hook (prog-mode . hs-minor-mode))
 
 (use-package multiple-cursors
