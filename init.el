@@ -80,6 +80,10 @@
 (setq-default fill-column 120)
 (setq-default show-paren-context-when-offscreen 'overlay)
 
+;; Setup PATH
+(add-to-list 'exec-path "/usr/local/bin")
+(setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
+
 ;; Delete the selected text upon text insertion
 (use-package delsel
   :ensure nil ; no need to install it as it is built-in
@@ -253,11 +257,15 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (global-set-key (kbd "C-c ws") #'ace-swap-window)
 (global-set-key (kbd "C-c wm") #'dz/move-current-buffer-other-window)
 (global-set-key (kbd "C-c c") #'recompile)
+;; NOTE(dz) added for hel
+(global-set-key (kbd "C-c C-c") #'recompile)
 (global-set-key (kbd "C-c C-i") #'imenu)
 (global-set-key (kbd "C-c f .") (lambda () (interactive) (dired ".")))
 (global-set-key (kbd "C-c f b j") #'bookmark-jump)
 (global-set-key (kbd "C-c f b c") #'bookmark-set)
 (global-set-key (kbd "C-;") #'other-window)
+;; NOTE(dz) added for hel
+(global-set-key (kbd "C-c o") #'delete-other-windows)
 (global-set-key (kbd "C-c d") #'dz/duplicate-line)
 (global-set-key (kbd "C-x C-s") #'dz/save-some-buffers-silently)
 (global-set-key (kbd "M-DEL") #'dz/kill-whitespace-or-word-backward)
@@ -591,7 +599,11 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
    '("{" . dz/meow-surround-curly)
    ))
 
+(defvar dz/use-hel-instead-of-meow nil
+  "Whether to enable hel mode instead of meow-mode")
+
 (use-package meow
+  :if (not dz/use-hel-instead-of-meow)
   :ensure (:host github :repo "meow-edit/meow" :branch "master")
   :hook
   (calc-mode . (lambda ()
@@ -603,6 +615,35 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   :config
   (meow-setup)
   (meow-global-mode 1))
+
+(use-package hel
+  :if dz/use-hel-instead-of-meow
+  :ensure (:host github :repo "helheim-emacs/hel" :branch "main")
+  :custom
+  (hel-normal-state-cursor-type 'box)
+  (hel-insert-state-cursor-type 'bar)
+  :config
+  (hel-mode)
+  (hel-keymap-global-set :state 'normal
+    "`"   #'dz/switch-other-buffer
+    "C-x s" #'dz/save-some-buffers-silently
+    "C-c r" #'revert-buffer-quick
+    "C-s" nil
+    "C-r" nil
+    "C-e" nil
+    "C-;" nil))
+
+(use-package hel-leader
+  :if dz/use-hel-instead-of-meow
+  :ensure (:host github :repo "helheim-emacs/hel-leader" :branch "main")
+  :after hel
+  )
+
+(use-package hel-collection
+  :if dz/use-hel-instead-of-meow
+  :ensure (:host github :repo "helheim-emacs/hel-collection" :branch "main")
+  :after hel
+  :config (hel-collection-init))
 
 (use-package yasnippet
   :ensure nil
@@ -863,7 +904,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 
   :bind
   (([f1] . embark-act)
-   ("M-." . embark-dwim)
+   ;; ("M-." . embark-dwim)
    ("C-c M-." . dz/embark-dwim-other-window)
    ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
 
@@ -1078,7 +1119,13 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (add-hook 'completion-at-point-functions #'cape-keyword)
   (add-hook 'completion-at-point-functions #'cape-history)
   ;; ...
-)
+  )
+
+;; (use-package eglot
+;;   :ensure nil
+;;   :config
+;;   ;; disable highlight on hover
+;;   (setq eglot-ignored-server-capabilities '(:documentHighlightProvider)))
 
 (use-package dired
   :ensure nil
@@ -1430,3 +1477,9 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
           (insert log-import "\n")))
 
         (message "Вставил-с. Не впервой.")))))
+
+(defun dz/bitrix-find-develop-context-dir ()
+  "Open .ai/develop-context directory"
+  (interactive)
+  (let ((default-directory "~/code/bitrix24/android/.ai/develop-context/"))
+   (call-interactively #'find-file )))
