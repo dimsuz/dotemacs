@@ -1075,7 +1075,7 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
 (use-package corfu
   :ensure t
   ;; disabled for now, until emacs 31 will be available on MacOS, otherwise an error
-  ;; :hook (elpaca-after-init . global-corfu-mode)
+  :hook (elpaca-after-init . global-corfu-mode)
   :bind
   (:map corfu-map
         ("<tab>" . corfu-next)
