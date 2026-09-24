@@ -1202,6 +1202,8 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   (add-to-list 'treesit-language-source-alist
                '(kotlin . ("https://github.com/fwcd/tree-sitter-kotlin")))
   (add-to-list 'treesit-language-source-alist
+               '(odin . ("https://github.com/tree-sitter-grammars/tree-sitter-odin")))
+  (add-to-list 'treesit-language-source-alist
                '(typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")))
   (add-to-list 'treesit-language-source-alist
                '(tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")))
@@ -1308,6 +1310,13 @@ BUFFER is the compilation buffer, STATUS is the exit status string."
   ;; this enables 'gc' to use the correct comment style
   (setq comment-start "// "
         comment-end ""))
+
+(use-package odin-ts-mode
+  :ensure (:host github :repo "Sampie159/odin-ts-mode")
+  :mode "\\.odin\\'"
+  :config
+  (setq odin-ts-mode-indent-offset 2)
+  )
 
 (use-package kotlin-mode
   :ensure t
